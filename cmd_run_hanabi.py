@@ -14,5 +14,5 @@ __version__ = "0.0.0"
 if __name__ == "__main__":
     print("Running Hanabi Simulator")
     hanabi = Hanabi()
-    agents = [Agent(), Agent(), Agent(), Agent()]
+    agents = [Agent(0), Agent(1), Agent(2), Agent(3)]
     hanabi.simulate_game(agents)

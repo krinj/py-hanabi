@@ -50,7 +50,7 @@ class State:
         for i in range(self.number_of_players):
             self.draw_card(i, n_cards_to_draw)
 
-    def draw_card(self, player_index: int, amount: int=1):
+    def draw_card(self, player_index: int, amount: int = 1):
         """ Draw a number of cards from the deck. """
         for _ in range(amount):
             card = self.deck.pop()
@@ -63,7 +63,13 @@ class State:
         """ Get a list of all possible playable cards. """
         cards = []
         for color in Color:
-
             pass
 
         return cards
+
+    def get_player_hand(self, player_index: int):
+        return self.hands[player_index]
+
+    @property
+    def number_of_cards_in_deck(self) -> int:
+        return len(self.deck)

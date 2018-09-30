@@ -16,9 +16,8 @@ __email__ = "juangbhanich.k@gmail.com"
 
 
 class Action:
-    def __init__(self):
-        self.player_index: int = 0
-        pass
+    def __init__(self, player_index: int):
+        self.player_index: int = player_index
 
     @abstractmethod
     def execute(self, state: State) -> State:
@@ -29,9 +28,12 @@ class Action:
 
 
 class ActionDiscard(Action):
-    def __init__(self):
-        super().__init__()
-        self.card_index: int = 0
+    def __init__(self, player_index: int, card_index: int):
+        super().__init__(player_index)
+        self.card_index: int = card_index
+
+    def __repr__(self):
+        return "Discard Action"
 
     def execute(self, state: State) -> State:
         # Remove this card.
@@ -41,6 +43,7 @@ class ActionDiscard(Action):
         if state.hint_tokens < N_HINT_TOKENS_MAX:
             state.hint_tokens += 1
 
+        state.draw_card(self.player_index, 1)
         return state
 
 

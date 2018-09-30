@@ -22,9 +22,10 @@ class Hanabi:
     def __init__(self):
         self.state: State = State()
         self.agents: List[Agent] = []
+        self.loop_breaker: int = 9000
 
     def simulate_game(self, agents: List[Agent]):
-        assert(2 <= len(agents) <= 5)
+        assert (2 <= len(agents) <= 5)
         self.agents = agents
         self._reset()
 
@@ -36,22 +37,35 @@ class Hanabi:
     def _reset(self):
         """ Reset the simulator and board state. """
         deck = self._generate_deck()
+        self.loop_breaker = 9000
         self.state.reset(self.number_of_agents, deck, N_HINT_TOKENS_MAX, N_FUSE_TOKENS_MAX)
 
     def _play(self):
         """ Execute a turn in the game. """
-        print("Play")
+        print("Play\n")
         agent = self.agents[self.state.player_index]
         action = agent.play(self.state)
-        self.state.fuse_tokens -= 1
         self._execute_action(action)
+        print(f"Action: {action}")
+        print(f"Deck Size: {len(self.state.deck)}")
 
     def _execute_action(self, action: Action) -> None:
+        action.execute(self.state)
         pass
 
     def _is_game_over(self, state: State) -> bool:
+
+        if state.number_of_cards_in_deck == 0:
+            return True
+
         if state.fuse_tokens == 0:
             return True
+
+        if self.loop_breaker == 0:
+            return True
+        else:
+            self.loop_breaker -= 1
+
         return False
 
     def _generate_deck(self) -> List[Card]:
