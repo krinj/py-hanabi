@@ -33,6 +33,7 @@ class Hanabi:
             self._play()
 
         print("Game is over")
+        print(f"Score: {self.state.score}")
 
     def _reset(self):
         """ Reset the simulator and board state. """
@@ -42,7 +43,7 @@ class Hanabi:
 
     def _play(self):
         """ Execute a turn in the game. """
-        print("Play\n")
+        print("Round\n")
         agent = self.agents[self.state.player_index]
         action = agent.play(self.state)
         self._execute_action(action)

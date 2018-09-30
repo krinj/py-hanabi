@@ -25,7 +25,7 @@ class Card:
         self._id: str = uuid.uuid4().hex
 
     def __repr__(self):
-        return f"[Card: {self.color} {self.number}]"
+        return f"[{self.color} {self.number}]"
 
     @property
     def id(self) -> str:

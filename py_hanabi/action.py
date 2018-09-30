@@ -48,11 +48,19 @@ class ActionDiscard(Action):
 
 
 class ActionPlay(Action):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player_index: int, card_index: int):
+        super().__init__(player_index)
+        self.card_index: int = card_index
+
+    def __repr__(self):
+        return "Play Action"
 
     def execute(self, state: State) -> State:
-        pass
+        # Remove this card.
+        card = state.hands[self.player_index].pop(self.card_index)
+        state.play_card(card)
+        state.draw_card(self.player_index, 1)
+        return state
 
 
 class ActionHint(Action):

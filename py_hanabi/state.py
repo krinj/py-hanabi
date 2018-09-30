@@ -22,6 +22,7 @@ class State:
         self.discard_pile: List[Card] = []
         self.deck: List[Card] = []
         self.fireworks: List[Card] = []
+        self.all_cards: List[Card] = []
 
         # Tokens
         self.hint_tokens = 0
@@ -38,6 +39,7 @@ class State:
             self.hands.append([])
 
         self.deck = deck
+        self.all_cards = deck[:]
         self.discard_pile.clear()
         self._draw_initial_cards()
 
@@ -62,10 +64,49 @@ class State:
     def playable_cards(self) -> List[Card]:
         """ Get a list of all possible playable cards. """
         cards = []
-        for color in Color:
-            pass
+        color_added = {}
 
+        color_value_map = {}
+        for card in self.fireworks:
+            color = card.color
+            if color not in color_value_map:
+                color_value_map[color] = card
+            elif color_value_map[color].number < card.number:
+                color_value_map[color] = card
+
+        for card in self.all_cards:
+            color = card.color
+            if color in color_added:
+                continue
+
+            if color in color_value_map and color_value_map[color].number == card.number - 1:
+                cards.append(card)
+                color_added[color] = True
+            else:
+                if card.number == 1:
+                    cards.append(card)
+                    color_added[color] = True
+
+        print(f"Playable Cards: {cards}")
         return cards
+
+    def play_card(self, card: Card):
+        if card in self.playable_cards:
+            self.fireworks.append(card)
+        else:
+            self.discard_pile.append(card)
+            self.fuse_tokens -= 1
+
+    @property
+    def score(self) -> int:
+        color_score = {}
+        for card in self.fireworks:
+            color = card.color
+            if color not in color_score or card.number > color_score[color]:
+                color_score[color] = card.number
+
+        score = sum([color_score[k] for k in color_score])
+        return score
 
     def get_player_hand(self, player_index: int):
         return self.hands[player_index]
