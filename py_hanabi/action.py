@@ -21,6 +21,7 @@ class Action:
 
     @abstractmethod
     def execute(self, state: State) -> State:
+        print("EXECUTE ACTION BASE")
         pass
 
     def hand(self, state: State) -> List[Card]:
@@ -37,6 +38,7 @@ class ActionDiscard(Action):
 
     def execute(self, state: State) -> State:
         # Remove this card.
+        print("EXECUTE ACTION DISCARD")
         state.hands[self.player_index].pop(self.card_index)
 
         # Recover a hint token if possible.
@@ -53,9 +55,10 @@ class ActionPlay(Action):
         self.card_index: int = card_index
 
     def __repr__(self):
-        return "Play Action"
+        return f"Play Action: {self.card_index}"
 
     def execute(self, state: State) -> State:
+        print("EXECUTE ACTION PLAY")
         # Remove this card.
         card = state.hands[self.player_index].pop(self.card_index)
         state.play_card(card)
@@ -64,8 +67,12 @@ class ActionPlay(Action):
 
 
 class ActionHint(Action):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, player_index: int):
+        super().__init__(player_index)
+
+    def __repr__(self):
+        return f"Hint Action"
 
     def execute(self, state: State) -> State:
-        pass
+        state.hint_tokens -= 1
+        return state

@@ -34,6 +34,7 @@ class Hanabi:
 
         print("Game is over")
         print(f"Score: {self.state.score}")
+        return self.state.score
 
     def _reset(self):
         """ Reset the simulator and board state. """
@@ -47,8 +48,17 @@ class Hanabi:
         agent = self.agents[self.state.player_index]
         action = agent.play(self.state)
         self._execute_action(action)
+        print(f"Playable Cards: {self.state.playable_cards}")
+        print(f"Player {self.state.player_index} Hand: {self.state.get_player_hand(self.state.player_index)}")
         print(f"Action: {action}")
         print(f"Deck Size: {len(self.state.deck)}")
+        self.state.on_round_end()
+        self._cycle_player()
+
+    def _cycle_player(self):
+        self.state.player_index += 1
+        if self.state.player_index > 3:
+            self.state.player_index = 0
 
     def _execute_action(self, action: Action) -> None:
         action.execute(self.state)
@@ -56,7 +66,7 @@ class Hanabi:
 
     def _is_game_over(self, state: State) -> bool:
 
-        if state.number_of_cards_in_deck == 0:
+        if state.game_has_ended:
             return True
 
         if state.fuse_tokens == 0:

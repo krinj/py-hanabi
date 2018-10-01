@@ -3,7 +3,7 @@
 """
 The current state of the game.
 """
-
+from itertools import chain
 from typing import List
 from py_hanabi.card import Card, Color
 
@@ -27,6 +27,8 @@ class State:
         # Tokens
         self.hint_tokens = 0
         self.fuse_tokens = 0
+        self.rounds_left = None
+        self.game_has_ended = False
 
     @property
     def number_of_players(self) -> int:
@@ -45,6 +47,17 @@ class State:
 
         self.hint_tokens = hint_tokens
         self.fuse_tokens = fuse_tokens
+        self.rounds_left = None
+        self.game_has_ended = False
+
+    def on_round_end(self):
+        if self.rounds_left is None:
+            if len(self.deck) == 0:
+                self.rounds_left = 4
+        else:
+            self.rounds_left -= 1
+            if self.rounds_left == 0:
+                self.game_has_ended = True
 
     def _draw_initial_cards(self):
         """ Draw the starting cards for the game. """
@@ -55,43 +68,35 @@ class State:
     def draw_card(self, player_index: int, amount: int = 1):
         """ Draw a number of cards from the deck. """
         for _ in range(amount):
-            card = self.deck.pop()
-            self.hands[player_index].append(card)
             if len(self.deck) == 0:
                 break
+            card = self.deck.pop()
+            self.hands[player_index].append(card)
 
     @property
     def playable_cards(self) -> List[Card]:
         """ Get a list of all possible playable cards. """
         cards = []
-        color_added = {}
-
         color_value_map = {}
+        for color in Color:
+            color_value_map[color] = 0
+
         for card in self.fireworks:
             color = card.color
-            if color not in color_value_map:
-                color_value_map[color] = card
-            elif color_value_map[color].number < card.number:
-                color_value_map[color] = card
+            if color_value_map[color] < card.number:
+                color_value_map[color] = card.number
 
-        for card in self.all_cards:
-            color = card.color
-            if color in color_added:
-                continue
-
-            if color in color_value_map and color_value_map[color].number == card.number - 1:
+        for color in color_value_map:
+            n = color_value_map[color]
+            if n < 5:
+                card = Card(n + 1, color)
                 cards.append(card)
-                color_added[color] = True
-            else:
-                if card.number == 1:
-                    cards.append(card)
-                    color_added[color] = True
 
-        print(f"Playable Cards: {cards}")
         return cards
 
     def play_card(self, card: Card):
-        if card in self.playable_cards:
+        print(f"Is Card Playable: {card}: {self.is_card_playable(card)}")
+        if self.is_card_playable(card):
             self.fireworks.append(card)
         else:
             self.discard_pile.append(card)
@@ -110,6 +115,43 @@ class State:
 
     def get_player_hand(self, player_index: int):
         return self.hands[player_index]
+
+    # ===================================================================================================
+    # Querying Functions.
+    # ===================================================================================================
+
+    def is_card_playable(self, card: Card):
+        for playable_card in self.playable_cards:
+            if playable_card == card:
+                return True
+        return False
+
+    def get_discard_score(self, card: Card):
+
+        for p in self.playable_cards:
+            if p.color == card.color:
+                if p.number > card.number:
+                    return 1
+
+        if card.number == 5:
+            return 0
+
+        for p in self.playable_cards:
+            if p == card:
+                return 0.2
+
+        all_visible = list(chain.from_iterable(self.hands))
+        same_count = sum([1 for c in all_visible if c == card])
+
+        if same_count >= 2:
+            print("Same Card")
+            return 0.5
+
+        return 0.3
+
+    # ===================================================================================================
+    # Property.
+    # ===================================================================================================
 
     @property
     def number_of_cards_in_deck(self) -> int:
