@@ -38,7 +38,7 @@ class Hanabi:
 
     def _reset(self):
         """ Reset the simulator and board state. """
-        deck = self._generate_deck()
+        deck = Card.generate_deck()
         self.loop_breaker = 9000
         self.state.reset(self.number_of_agents, deck, N_HINT_TOKENS_MAX, N_FUSE_TOKENS_MAX)
 
@@ -78,17 +78,6 @@ class Hanabi:
             self.loop_breaker -= 1
 
         return False
-
-    def _generate_deck(self) -> List[Card]:
-        """ Generate the starting deck for the game. """
-        deck: List[Card] = []
-        for color in Color:
-            for i in CARD_DECK_DISTRIBUTION:
-                card = Card(i, color)
-                deck.append(card)
-
-        random.shuffle(deck)
-        return deck
 
     @property
     def number_of_agents(self) -> int:

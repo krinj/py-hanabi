@@ -3,8 +3,12 @@
 """
 A card (duh).
 """
+import random
 import uuid
 from enum import Enum
+from typing import List
+
+from py_hanabi.settings import CARD_DECK_DISTRIBUTION
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
@@ -23,6 +27,8 @@ class Card:
         self._number: int = number
         self._color: Color = color
         self._id: str = uuid.uuid4().hex
+        self._hint_received_number: bool = False
+        self._hint_received_color: bool = False
 
     def __repr__(self):
         return f"[{self.color} {self.number}]"
@@ -30,9 +36,23 @@ class Card:
     def __eq__(self, other: 'Card'):
         return self.color == other.color and self.number == other.number
 
+    def receive_hint_number(self):
+        self._hint_received_number = True
+
+    def receive_hint_color(self):
+        self._hint_received_color = True
+
     @property
     def id(self) -> str:
         return self._id
+
+    @property
+    def key(self) -> str:
+        return self.get_key(self.color, self.number)
+
+    @staticmethod
+    def get_key(c: Color, n: int) -> str:
+        return f"{c}_{n}"
 
     @property
     def number(self) -> int:
@@ -41,3 +61,23 @@ class Card:
     @property
     def color(self) -> Color:
         return self._color
+
+    @property
+    def observed_color(self) -> Color:
+        return None if not self._hint_received_color else self._color
+
+    @property
+    def observed_number(self) -> int:
+        return None if not self._hint_received_number else self._number
+
+    @staticmethod
+    def generate_deck() -> List['Card']:
+        """ Generate the starting deck for the game. """
+        deck: List[Card] = []
+        for color in Color:
+            for i in CARD_DECK_DISTRIBUTION:
+                card = Card(i, color)
+                deck.append(card)
+
+        random.shuffle(deck)
+        return deck
