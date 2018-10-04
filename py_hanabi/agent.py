@@ -9,6 +9,7 @@ from typing import List
 from py_hanabi import analyzer
 from py_hanabi.action import Action, ActionDiscard, ActionPlay, ActionHint
 from py_hanabi.card import Card
+from py_hanabi.card_matrix import CardMatrix
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"
@@ -24,13 +25,35 @@ class Agent:
 
         hand: List[Card] = state.get_player_hand(self.player_index)
 
-        matrices = []
+        matrices: List[CardMatrix] = []
         for i, card in enumerate(hand):
-            matrix = analyzer.get_card_matrix(state, self.player_index, None, None)
+            matrix = analyzer.get_card_matrix(state, self.player_index, card.observed_color, card.observed_number)
             matrix.hand_index = i
             matrices.append(matrix)
 
-        return ActionDiscard(self.player_index, 0)
+        ratings = [m.rating_play for m in matrices]
+        print(ratings)
+
+        play_matrix = sorted(matrices, key=lambda x: x.rating_play, reverse=True)
+        discard_matrix = sorted(matrices, key=lambda x: x.rating_discard, reverse=True)
+
+        card_play = play_matrix[0]
+        if card_play.rating_play >= 0.6:
+            return ActionPlay(self.player_index, card_play.hand_index)
+
+        card_discard = discard_matrix[0]
+
+        if card_discard.rating_discard >= 0.8:
+            return ActionDiscard(self.player_index, card_discard.hand_index)
+
+        if state.hint_tokens > 0:
+            hints = analyzer.get_valid_hint_actions(state, self.player_index)
+            hints = sorted(hints, key=lambda x: (x.rating, x.distance), reverse=True)
+            return hints[0]
+
+        return ActionDiscard(self.player_index, card_discard.hand_index)
+
+        #return ActionDiscard(self.player_index, 0)
 
         # for i in range(len(hand)):
         #     card = hand[i]

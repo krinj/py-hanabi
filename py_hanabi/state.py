@@ -144,7 +144,6 @@ class State:
         same_count = sum([1 for c in all_visible if c == card])
 
         if same_count >= 2:
-            print("Same Card")
             return 0.5
 
         return 0.3

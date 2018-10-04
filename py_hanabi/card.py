@@ -31,7 +31,13 @@ class Card:
         self._hint_received_color: bool = False
 
     def __repr__(self):
-        return f"[{self.color} {self.number}]"
+        hint_str = ""
+        if self.hint_received_color:
+            hint_str += "C"
+        if self.hint_received_number:
+            hint_str += "N"
+
+        return f"[{self.color} {self.number} {hint_str}]"
 
     def __eq__(self, other: 'Card'):
         return self.color == other.color and self.number == other.number
@@ -69,6 +75,14 @@ class Card:
     @property
     def observed_number(self) -> int:
         return None if not self._hint_received_number else self._number
+
+    @property
+    def hint_received_number(self) -> bool:
+        return self._hint_received_number
+
+    @property
+    def hint_received_color(self) -> bool:
+        return self._hint_received_color
 
     @staticmethod
     def generate_deck() -> List['Card']:

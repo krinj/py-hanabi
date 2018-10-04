@@ -7,7 +7,7 @@
 from abc import abstractmethod
 from typing import List
 
-from py_hanabi.card import Card
+from py_hanabi.card import Card, Color
 from py_hanabi.settings import N_HINT_TOKENS_MAX
 from py_hanabi.state import State
 
@@ -22,7 +22,7 @@ class Action:
     @abstractmethod
     def execute(self, state: State) -> State:
         print("EXECUTE ACTION BASE")
-        pass
+        return state
 
     def hand(self, state: State) -> List[Card]:
         return state.hands[self.player_index]
@@ -67,12 +67,40 @@ class ActionPlay(Action):
 
 
 class ActionHint(Action):
-    def __init__(self, player_index: int):
+    def __init__(self, player_index: int, target_index: int, number: int=None, color: Color=None):
         super().__init__(player_index)
+        self.target_index: int = target_index
+        self.number = number
+        self.color = color
+        self.rating: float = 0.0
+        self.distance: int = 0
+
+        i = player_index
+        while i != target_index:
+            i += 1
+            self.distance += 1
+            if i > 3:
+                i = 0
+
+        self.distance *= -1
 
     def __repr__(self):
-        return f"Hint Action"
+        hint_subject = self.color if self.color is not None else self.number
+        return f"Hint Action: To Player {self.target_index} " \
+               f"Subject: {hint_subject} Rating: {self.rating} Dist: {self.distance}"
 
     def execute(self, state: State) -> State:
         state.hint_tokens -= 1
+
+        hand = state.get_player_hand(self.target_index)
+
+        if self.number is not None:
+            for card in hand:
+                if card.number == self.number:
+                    card.receive_hint_number()
+        else:
+            for card in hand:
+                if card.color == self.color:
+                    card.receive_hint_color()
+
         return state
