@@ -15,7 +15,8 @@ __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
 
 
-def get_card_matrix(state: State, player_index: int, known_color: Color=None, known_number: int=None) -> CardMatrix:
+def get_card_matrix(state: State, player_index: int, known_color: Color=None, known_number: int=None,
+                    not_color: List[Color] = None, not_number: List[int] = None) -> CardMatrix:
     """ Get a card matrix with all the possible cards this card could be. """
     card_matrix: CardMatrix = CardMatrix()
 
@@ -24,7 +25,8 @@ def get_card_matrix(state: State, player_index: int, known_color: Color=None, kn
             stat = CardStat()
             stat.color = c
             stat.number = n
-            stat.probability = get_card_probability(state, player_index, c, n, known_color, known_number)
+            stat.probability = get_card_probability(state, player_index, c, n, known_color, known_number,
+                                                    not_color, not_number)
             stat.rating_play = get_rating_play(state, player_index, c, n, known_color, known_number)
             stat.rating_discard = get_rating_discard(state, player_index, c, n, known_color, known_number)
             card_matrix.add(stat)
@@ -36,7 +38,8 @@ def get_card_matrix(state: State, player_index: int, known_color: Color=None, kn
 
 def get_card_probability(
         state: State, player_index: int, c: Color, n: int,
-        known_color: Color=None, known_number: int=None) -> float:
+        known_color: Color=None, known_number: int=None,
+        not_color: List[Color]=None, not_number: List[int]=None) -> float:
 
     # Find all cards in the deck.
     counter: CardCounter = CardCounter.deck()
@@ -56,6 +59,9 @@ def get_card_probability(
     # Eliminate cards we know it cannot be.
     for c_i, n_i in [(c_i, n_i) for c_i in Color for n_i in range(1, 6)]:
         if (known_color is not None and known_color != c_i) or (known_number is not None and known_number != n_i):
+            counter.set(c_i, n_i, 0)
+
+        if (not_color is not None and c_i in not_color) or (not_number is not None and n_i in not_number):
             counter.set(c_i, n_i, 0)
 
     # Find the count of number of cards.
@@ -116,7 +122,7 @@ def get_valid_hint_actions(state: State, player_index: int) -> List[ActionHint]:
 
 
 def get_hint_rating(state: State, hint: ActionHint) -> float:
-    hand = state.get_player_hand(hint.player_index)
+    hand = state.get_player_hand(hint.target_index)
     max_gain = -1
     best_matrix = None
     total_gain = 0
@@ -151,7 +157,7 @@ def get_hint_rating(state: State, hint: ActionHint) -> float:
             max_gain = gain
             best_matrix = post_matrix
 
-    # print(f"Hint Analysis: {hint.color} {hint.number}")
+    # print(f"Hint Analysis: {hint.color} {hint.number} Player {hint.target_index}")
     # print(f"Rating: {max_gain}")
     # print(best_matrix)
     # print()

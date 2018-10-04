@@ -30,6 +30,10 @@ class Card:
         self._hint_received_number: bool = False
         self._hint_received_color: bool = False
 
+        # According to hints, these are the ones we know it is NOT.
+        self.not_color: List[Color] = []
+        self.not_number: List[int] = []
+
     def __repr__(self):
         hint_str = ""
         if self.hint_received_color:

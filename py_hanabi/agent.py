@@ -27,7 +27,8 @@ class Agent:
 
         matrices: List[CardMatrix] = []
         for i, card in enumerate(hand):
-            matrix = analyzer.get_card_matrix(state, self.player_index, card.observed_color, card.observed_number)
+            matrix = analyzer.get_card_matrix(state, self.player_index, card.observed_color, card.observed_number,
+                                              card.not_color, card.not_number)
             matrix.hand_index = i
             matrices.append(matrix)
 
@@ -38,12 +39,12 @@ class Agent:
         discard_matrix = sorted(matrices, key=lambda x: x.rating_discard, reverse=True)
 
         card_play = play_matrix[0]
-        if card_play.rating_play >= 0.6:
+        if card_play.rating_play >= 0.8:
             return ActionPlay(self.player_index, card_play.hand_index)
 
         card_discard = discard_matrix[0]
 
-        if card_discard.rating_discard >= 0.8:
+        if card_discard.rating_discard >= 0.9:
             return ActionDiscard(self.player_index, card_discard.hand_index)
 
         if state.hint_tokens > 0:

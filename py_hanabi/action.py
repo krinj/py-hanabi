@@ -98,9 +98,13 @@ class ActionHint(Action):
             for card in hand:
                 if card.number == self.number:
                     card.receive_hint_number()
+                else:
+                    card.not_number.append(self.number)
         else:
             for card in hand:
                 if card.color == self.color:
                     card.receive_hint_color()
+                else:
+                    card.not_color.append(self.color)
 
         return state
