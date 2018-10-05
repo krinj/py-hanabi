@@ -53,6 +53,10 @@ class Card:
         self._hint_received_color = True
 
     @property
+    def label(self):
+        return f"{self.number} of {self.get_color_label(self.color)}"
+
+    @property
     def id(self) -> str:
         return self._id
 
@@ -99,3 +103,14 @@ class Card:
 
         random.shuffle(deck)
         return deck
+
+    @staticmethod
+    def get_color_label(color: Color) -> str:
+        color_labels = {
+            Color.BLUE: "Blue",
+            Color.RED: "Red",
+            Color.YELLOW: "Yellow",
+            Color.GREEN: "Green",
+            Color.WHITE: "White",
+        }
+        return color_labels[color]

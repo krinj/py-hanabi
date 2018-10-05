@@ -18,6 +18,7 @@ __email__ = "juangbhanich.k@gmail.com"
 
 class Agent:
     def __init__(self, player_index: int):
+        self.name: str = "Agent"
         self.player_index: int = player_index
         pass
 
