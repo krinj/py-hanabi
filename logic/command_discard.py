@@ -28,6 +28,8 @@ class CommandDiscard(Command):
         if self.should_add_hint:
             state.hint_tokens += 1
 
+        self.long_description = f"Player {self.player_index} Discards {card.label}."
+
     def back(self, state: State):
         card = state.discard_pile.pop()
         state.hands[self.player_index].insert(self.card_index, card)

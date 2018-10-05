@@ -14,6 +14,7 @@ __email__ = "juangbhanich.k@gmail.com"
 class Command:
     def __init__(self):
         self.name: str = "Initialize Board"
+        self.long_description: str = "..."
 
     @abstractmethod
     def forward(self, state: State):

@@ -19,6 +19,7 @@ class CommandNextPlayer(Command):
         state.player_index += 1
         if state.player_index >= state.number_of_players:
             state.player_index = 0
+        self.long_description = f"Switch to Player {state.player_index}."
 
     def back(self, state: State):
         state.player_index -= 1

@@ -22,11 +22,14 @@ class CommandPlay(Command):
 
     def forward(self, state: State):
         card = state.hands[self.player_index].pop(self.card_index)
+
         if self.is_playable:
             state.fireworks.append(card)
+            self.long_description = f"Player {self.player_index} Successfully Plays {card.label}."
         else:
             state.discard_pile.append(card)
             state.fuse_tokens -= 1
+            self.long_description = f"Player {self.player_index} Wrongly Plays {card.label}."
 
     def back(self, state: State):
         if self.is_playable:

@@ -5,9 +5,10 @@
 """
 from typing import List
 
+from PyQt5 import QtCore
 from PyQt5.QtGui import QResizeEvent
 from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QWidget, QGroupBox, \
-    QVBoxLayout, QListWidget, QListWidgetItem, QBoxLayout
+    QVBoxLayout, QListWidget, QListWidgetItem, QBoxLayout, QLabel
 
 from interface.widget_board_info import WidgetBoardInfo
 from interface.widget_game_control import WidgetGameControl
@@ -27,10 +28,10 @@ class WindowGame(Window):
         super().__init__()
 
         self.game_controller: GameController = GameController()
-
         self.widget_history: WidgetHistory = WidgetHistory()
         self.widget_game_control: WidgetGameControl = WidgetGameControl()
         self.widget_board_info: WidgetBoardInfo = WidgetBoardInfo()
+        self.action_label: QLabel = None
         self.hands: List[WidgetHand] = []
 
     def render(self, parent: QMainWindow):
@@ -49,6 +50,10 @@ class WindowGame(Window):
         main_layout.addWidget(control_panel_widget)
 
         state_widget, state_layout = self.create_layout_group("Board State")
+        self.action_label = QLabel("...")
+        self.action_label.setFixedHeight(32)
+        self.action_label.setAlignment(QtCore.Qt.AlignCenter)
+        state_layout.addWidget(self.action_label)
         for i in range(4):
             hand = WidgetHand(i)
             hand.setup(state_layout)
@@ -79,6 +84,7 @@ class WindowGame(Window):
 
     def set_history_index(self, index: int):
         self.game_controller.set_command_index(index)
+        self.action_label.setText(self.game_controller.history[index].long_description)
         self.render_state(self.game_controller.state)
 
     @staticmethod

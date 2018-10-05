@@ -97,15 +97,17 @@ class ActionHint(Action):
 
         if self.number is not None:
             for card in hand:
-                if card.number == self.number:
-                    card.receive_hint_number()
-                else:
-                    card.not_number.append(self.number)
+                card.receive_hint_number(self.number)
+                # if card.number == self.number:
+                #     card.receive_hint_number()
+                # else:
+                #     card.not_number.append(self.number)
         else:
             for card in hand:
-                if card.color == self.color:
-                    card.receive_hint_color()
-                else:
-                    card.not_color.append(self.color)
+                card.receive_hint_color(self.color)
+                # if card.color == self.color:
+                #     card.receive_hint_color()
+                # else:
+                #     card.not_color.append(self.color)
 
         return state

@@ -27,8 +27,9 @@ class Card:
         self._number: int = number
         self._color: Color = color
         self._id: str = uuid.uuid4().hex
-        self._hint_received_number: bool = False
-        self._hint_received_color: bool = False
+
+        self._hint_number_counter: int = 0
+        self._hint_number_color: int = 0
 
         # According to hints, these are the ones we know it is NOT.
         self.not_color: List[Color] = []
@@ -46,11 +47,29 @@ class Card:
     def __eq__(self, other: 'Card'):
         return self.color == other.color and self.number == other.number
 
-    def receive_hint_number(self):
-        self._hint_received_number = True
+    def receive_hint_number(self, number: int):
+        if number == self.number:
+            self._hint_number_counter += 1
+        else:
+            self.not_number.append(number)
 
-    def receive_hint_color(self):
-        self._hint_received_color = True
+    def receive_hint_color(self, color: Color):
+        if color == self.color:
+            self._hint_number_color += 1
+        else:
+            self.not_color.append(color)
+
+    def remove_hint_number(self, number: int):
+        if number == self.number:
+            self._hint_number_counter -= 1
+        else:
+            self.not_number.pop()
+
+    def remove_hint_color(self, color: Color):
+        if color == self.color:
+            self._hint_number_color -= 1
+        else:
+            self.not_color.pop()
 
     @property
     def label(self):
@@ -78,19 +97,19 @@ class Card:
 
     @property
     def observed_color(self) -> Color:
-        return None if not self._hint_received_color else self._color
+        return None if not self.hint_received_number else self._color
 
     @property
     def observed_number(self) -> int:
-        return None if not self._hint_received_number else self._number
+        return None if not self.hint_received_number else self._number
 
     @property
     def hint_received_number(self) -> bool:
-        return self._hint_received_number
+        return self._hint_number_counter > 0
 
     @property
     def hint_received_color(self) -> bool:
-        return self._hint_received_color
+        return self._hint_number_color > 0
 
     @staticmethod
     def generate_deck() -> List['Card']:

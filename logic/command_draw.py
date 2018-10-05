@@ -20,6 +20,7 @@ class CommandDraw(Command):
     def forward(self, state: State):
         card = state.deck.pop()
         state.hands[self.player_index].append(card)
+        self.long_description = f"Player {self.player_index} Draws {card.label}."
 
     def back(self, state: State):
         card = state.hands[self.player_index].pop()
