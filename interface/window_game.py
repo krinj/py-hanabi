@@ -1,0 +1,79 @@
+# -*- coding: utf-8 -*-
+
+"""
+<ENTER DESCRIPTION HERE>
+"""
+from typing import List
+
+from PyQt5.QtGui import QResizeEvent
+from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QWidget, QGroupBox, \
+    QVBoxLayout, QListWidget, QListWidgetItem, QBoxLayout
+
+from interface.widget_board_info import WidgetBoardInfo
+from interface.widget_game_control import WidgetGameControl
+from interface.widget_hand import WidgetHand
+from interface.widget_history import WidgetHistory
+from interface.window import Window
+
+__author__ = "Jakrin Juangbhanich"
+__email__ = "juangbhanich.k@gmail.com"
+
+
+class WindowGame(Window):
+
+    def __init__(self):
+        super().__init__()
+        self.widget_history: WidgetHistory = WidgetHistory()
+        self.widget_game_control: WidgetGameControl = WidgetGameControl()
+        self.widget_board_info: WidgetBoardInfo = WidgetBoardInfo()
+        self.hands: List[WidgetHand] = []
+
+    def render(self, parent: QMainWindow):
+        super().render(parent)
+        parent.setMinimumWidth(1136)
+        parent.setMinimumHeight(720)
+        self.show_window(parent)
+
+        main_layout = QHBoxLayout()
+        main_widget = QWidget()
+        main_widget.setLayout(main_layout)
+
+        control_panel_widget, control_panel_layout = self.create_layout_group("Game Controls", width=240)
+        self.widget_game_control.setup(control_panel_layout)
+        self.widget_history.setup(control_panel_layout)
+        main_layout.addWidget(control_panel_widget)
+
+        state_widget, state_layout = self.create_layout_group("Board State")
+        for i in range(5):
+            hand = WidgetHand()
+            hand.setup(state_layout)
+            self.hands.append(hand)
+
+        main_layout.addWidget(state_widget)
+
+        info_widget, info_layout = self.create_layout_group("Board Info", width=240)
+        self.widget_board_info.setup(info_layout)
+        main_layout.addWidget(info_widget)
+
+        self.add_widget(main_widget)
+        self.show_window(parent)
+
+    def on_resize(self, event: QResizeEvent):
+        for h in self.hands:
+            h.resize()
+
+    def update(self):
+        for h in self.hands:
+            h.update()
+
+    @staticmethod
+    def create_layout_group(name: str, width: int = None, horizontal: bool = False) -> (QWidget, QBoxLayout):
+        group_box = QGroupBox(name)
+
+        if width is not None:
+            group_box.setFixedWidth(width)
+
+        layout = QHBoxLayout() if horizontal else QVBoxLayout()
+        group_box.setLayout(layout)
+        return group_box, layout
+
