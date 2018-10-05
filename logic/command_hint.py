@@ -12,7 +12,7 @@ __email__ = "juangbhanich.k@gmail.com"
 
 
 class CommandHint(Command):
-    def __init__(self, player_index: int, target_index: int, number: int, color: Color):
+    def __init__(self, player_index: int, target_index: int, number: int=None, color: Color=None):
         super().__init__()
         self.player_index: int = player_index
         self.target_index: int = target_index

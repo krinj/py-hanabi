@@ -91,23 +91,16 @@ class ActionHint(Action):
                f"Subject: {hint_subject} Rating: {self.rating} Dist: {self.distance}"
 
     def execute(self, state: State) -> State:
-        state.hint_tokens -= 1
 
+        state.hint_tokens -= 1
         hand = state.get_player_hand(self.target_index)
 
         if self.number is not None:
             for card in hand:
                 card.receive_hint_number(self.number)
-                # if card.number == self.number:
-                #     card.receive_hint_number()
-                # else:
-                #     card.not_number.append(self.number)
+
         else:
             for card in hand:
                 card.receive_hint_color(self.color)
-                # if card.color == self.color:
-                #     card.receive_hint_color()
-                # else:
-                #     card.not_color.append(self.color)
 
         return state

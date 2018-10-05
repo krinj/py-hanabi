@@ -6,6 +6,7 @@
 
 from typing import List
 
+from logic.command_hint import CommandHint
 from py_hanabi.action import ActionHint
 from py_hanabi.card import Color, Card
 from py_hanabi.card_matrix import CardMatrix, CardStat, CardCounter
@@ -87,6 +88,37 @@ def get_rating_discard(
         state: State, player_index: int, c: Color, n: int,
         known_color: Color=None, known_number: int=None) -> float:
     return state.get_discard_score(Card(n, c))
+
+
+def get_valid_hint_commands(state: State, player_index: int) -> List[CommandHint]:
+
+    commands = []
+
+    for i in range(len(state.hands)):
+        if i != player_index:
+
+            map_colors = {}
+            map_numbers = {}
+
+            hand = state.get_player_hand(i)
+            for card in hand:
+                if not card.hint_received_color:
+                    map_colors[card.color] = True
+                if not card.hint_received_number:
+                    map_numbers[card.number] = True
+
+            for c in map_colors:
+                command = CommandHint(player_index, i, None, c)
+                commands.append(command)
+
+            for n in map_numbers:
+                command = CommandHint(player_index, i, n, None)
+                commands.append(command)
+
+    for command in commands:
+        command.rating = get_hint_rating(state, command)
+
+    return commands
 
 
 def get_valid_hint_actions(state: State, player_index: int) -> List[ActionHint]:

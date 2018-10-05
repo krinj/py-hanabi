@@ -97,7 +97,7 @@ class Card:
 
     @property
     def observed_color(self) -> Color:
-        return None if not self.hint_received_number else self._color
+        return None if not self.hint_received_color else self._color
 
     @property
     def observed_number(self) -> int:

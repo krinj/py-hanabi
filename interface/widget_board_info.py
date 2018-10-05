@@ -21,6 +21,8 @@ class WidgetBoardInfo:
         self.n_deck_label: QLabel = None
         self.n_fuse_label: QLabel = None
         self.n_hint_label: QLabel = None
+        self.n_score_label: QLabel = None
+
         self.discard_list: QListWidget = None
         self.firework_list: QListWidget = None
         self.layout: QBoxLayout = None
@@ -39,6 +41,8 @@ class WidgetBoardInfo:
         self.n_deck_label = QLabel(f"Deck: --")
         self.n_fuse_label = QLabel(f"Fuse Tokens: --")
         self.n_hint_label = QLabel(f"Hint Tokens: --")
+        self.n_score_label = QLabel(f"Score: --")
+
         self.discard_list = QListWidget()
         self.firework_list = QListWidget()
         self.firework_list.setFixedHeight(100)
@@ -47,6 +51,7 @@ class WidgetBoardInfo:
         self.layout.addWidget(self.n_deck_label)
         self.layout.addWidget(self.n_fuse_label)
         self.layout.addWidget(self.n_hint_label)
+        self.layout.addWidget(self.n_score_label)
 
         self.layout.addItem(QSpacerItem(0, 20))
         self.layout.addWidget(QLabel("Playable Cards"))
@@ -58,9 +63,11 @@ class WidgetBoardInfo:
         # self.update()
 
     def render_state(self, state: State):
+
         self.n_deck_label.setText(f"Deck: {state.number_of_cards_in_deck} Cards")
         self.n_fuse_label.setText(f"Fuse Tokens: {state.fuse_tokens}")
         self.n_hint_label.setText(f"Hint Tokens: {state.hint_tokens}")
+        self.n_score_label.setText(f"Score: {len(state.fireworks)}")
 
         self.discard_list.clear()
         for card in state.discard_pile:
