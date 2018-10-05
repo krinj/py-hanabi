@@ -54,6 +54,12 @@ class GameController:
         self.set_command_index(self.latest_command_index)
         self.add_command(CommandNextPlayer())
 
+        agent = self.agents[self.state.player_index]
+        commands = agent.play_command(self.state)
+
+        for c in commands:
+            self.add_command(c)
+
         # print("Round\n")
         # agent = self.agents[self.state.player_index]
         # action = agent.play(self.state)

@@ -6,6 +6,10 @@ An agent to play the Hanabi game.
 import random
 from typing import List
 
+from logic.command import Command
+from logic.command_discard import CommandDiscard
+from logic.command_draw import CommandDraw
+from logic.command_play import CommandPlay
 from py_hanabi import analyzer
 from py_hanabi.action import Action, ActionDiscard, ActionPlay, ActionHint
 from py_hanabi.card import Card
@@ -21,6 +25,24 @@ class Agent:
         self.name: str = "Agent"
         self.player_index: int = player_index
         pass
+
+    def hand(self, state: State) -> List[Card]:
+        return state.get_player_hand(self.player_index)
+
+    def play_command(self, state: State) -> List[Command]:
+
+        draw_command = CommandDraw(self.player_index)
+        random_hand_index = random.randint(0, len(self.hand(state)) - 1)
+
+        # Play
+        if random.random() > 0.5:
+            card = state.get_player_hand(self.player_index)[random_hand_index]
+            play_command = CommandPlay(self.player_index, random_hand_index, state.is_card_playable(card))
+            return [play_command, draw_command]
+
+        # Discard
+        discard_command = CommandDiscard(self.player_index, random_hand_index, not state.hint_token_capped)
+        return [discard_command, draw_command]
 
     def play(self, state: State) -> Action:
 

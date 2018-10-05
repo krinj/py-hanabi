@@ -39,7 +39,8 @@ class ActionDiscard(Action):
     def execute(self, state: State) -> State:
         # Remove this card.
         print("EXECUTE ACTION DISCARD")
-        state.hands[self.player_index].pop(self.card_index)
+        c = state.hands[self.player_index].pop(self.card_index)
+        state.discard_pile.append(c)
 
         # Recover a hint token if possible.
         if state.hint_tokens < N_HINT_TOKENS_MAX:

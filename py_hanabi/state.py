@@ -6,6 +6,7 @@ The current state of the game.
 from itertools import chain
 from typing import List
 from py_hanabi.card import Card, Color
+from py_hanabi.settings import N_HINT_TOKENS_MAX
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
@@ -33,6 +34,10 @@ class State:
     @property
     def number_of_players(self) -> int:
         return len(self.hands)
+
+    @property
+    def hint_token_capped(self) -> bool:
+        return self.hint_tokens >= N_HINT_TOKENS_MAX
 
     def reset(self, n_players: int, deck: List[Card], hint_tokens: int, fuse_tokens: int):
 
