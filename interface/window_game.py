@@ -3,6 +3,7 @@
 """
 <ENTER DESCRIPTION HERE>
 """
+import time
 from typing import List
 
 from PyQt5 import QtCore
@@ -45,7 +46,7 @@ class WindowGame(Window):
         main_widget.setLayout(main_layout)
 
         control_panel_widget, control_panel_layout = self.create_layout_group("Game Controls", width=240)
-        self.widget_game_control.setup(control_panel_layout)
+        self.widget_game_control.setup(control_panel_layout, self.on_press_play)
         self.widget_history.setup(control_panel_layout, self.set_history_index)
         main_layout.addWidget(control_panel_widget)
 
@@ -82,10 +83,24 @@ class WindowGame(Window):
     def update(self):
         self.widget_history.update(self.game_controller.history)
 
-    def set_history_index(self, index: int):
+    def set_history_index(self, index: int=None):
+        if index is None:
+            index = self.game_controller.latest_command_index
+
         self.game_controller.set_command_index(index)
         self.action_label.setText(self.game_controller.history[index].long_description)
         self.render_state(self.game_controller.state)
+
+    def on_press_play(self):
+        # game_ended = False
+        game_ended = self.game_controller.play()
+        self.update()
+        self.set_history_index()
+
+        if not game_ended:
+            t = QtCore.QTimer()
+            t.singleShot(10, self.on_press_play)
+
 
     @staticmethod
     def create_layout_group(name: str, width: int = None, horizontal: bool = False) -> (QWidget, QBoxLayout):

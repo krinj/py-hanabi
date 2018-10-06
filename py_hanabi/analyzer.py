@@ -172,16 +172,16 @@ def get_hint_rating(state: State, hint: ActionHint) -> float:
             post_matrix = get_card_matrix(state, hint.target_index, card.observed_color, hint.number)
 
         gain = post_matrix.rating_play - original_matrix.rating_play
-        discard_gain = post_matrix.rating_discard - original_matrix.rating_discard
+        discard_gain = (post_matrix.rating_discard - original_matrix.rating_discard) * 0.5
 
         if post_matrix.rating_play > 0.99 and gain > 0:
             gain = 1
 
         if post_matrix.rating_discard > 0.99 and discard_gain > 0:
-            discard_gain = 1
+            discard_gain = 0.5
 
         gain = min(1, gain)
-        discard_gain = min(1, discard_gain)
+        discard_gain = min(0.5, discard_gain)
 
         total_gain += gain + discard_gain
 

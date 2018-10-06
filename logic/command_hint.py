@@ -39,10 +39,14 @@ class CommandHint(Command):
 
         if self.number is not None:
             for card in hand:
-                    card.receive_hint_number(self.number)
+                card.receive_hint_number(self.number)
+            self.long_description = \
+                f"Player {self.player_index + 1} Gives Hint to Player {self.target_index + 1}: {self.number}"
         else:
             for card in hand:
-                    card.receive_hint_color(self.color)
+                card.receive_hint_color(self.color)
+                self.long_description = \
+                    f"Player {self.player_index + 1} Gives Hint to Player {self.target_index + 1}: {self.color}"
 
     def back(self, state: State):
         state.hint_tokens += 1

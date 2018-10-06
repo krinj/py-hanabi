@@ -17,7 +17,7 @@ class CommandDiscard(Command):
         super().__init__()
         self.player_index: int = player_index
         self.card_index: int = card_index
-        self.name: str = f"Player {self.player_index} discards {self.card_index}"
+        self.name: str = f"Player {self.player_index + 1} discards {self.card_index}"
         self.should_add_hint: bool = should_add_hint
 
     def forward(self, state: State):
@@ -28,7 +28,7 @@ class CommandDiscard(Command):
         if self.should_add_hint:
             state.hint_tokens += 1
 
-        self.long_description = f"Player {self.player_index} Discards {card.label}."
+        self.long_description = f"Player {self.player_index + 1} Discards {card.label}."
 
     def back(self, state: State):
         card = state.discard_pile.pop()

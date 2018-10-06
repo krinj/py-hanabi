@@ -34,6 +34,7 @@ class Agent:
         hand: List[Card] = state.get_player_hand(self.player_index)
         draw_command = CommandDraw(self.player_index)
         matrices: List[CardMatrix] = []
+        commands = []
 
         for i, card in enumerate(hand):
             matrix = analyzer.get_card_matrix(state, self.player_index, card.observed_color, card.observed_number,
@@ -45,17 +46,23 @@ class Agent:
         discard_matrix = sorted(matrices, key=lambda x: x.rating_discard, reverse=True)
 
         card_play = play_matrix[0]
-        if card_play.rating_play >= 0.9:
+        if card_play.rating_play >= 0.8:
             card = hand[card_play.hand_index]
             play_command = CommandPlay(self.player_index, card_play.hand_index, state.is_card_playable(card))
-            return [play_command, draw_command]
+            commands.append(play_command)
+            if state.number_of_cards_in_deck > 0:
+                commands.append(draw_command)
+            return commands
 
         card_discard = discard_matrix[0]
 
-        if card_discard.rating_discard >= 0.9:
+        discard_command = CommandDiscard(self.player_index, card_discard.hand_index, not state.hint_token_capped)
+        if card_discard.rating_discard >= 0.8:
             # Discard
-            discard_command = CommandDiscard(self.player_index, card_discard.hand_index, not state.hint_token_capped)
-            return [discard_command, draw_command]
+            commands.append(discard_command)
+            if state.number_of_cards_in_deck > 0:
+                commands.append(draw_command)
+            return commands
 
         if state.hint_tokens > 0:
             hints = analyzer.get_valid_hint_commands(state, self.player_index)
@@ -63,8 +70,11 @@ class Agent:
             return [hints[0]]
 
         # Discard Anyway
-        discard_command = CommandDiscard(self.player_index, card_discard.hand_index, not state.hint_token_capped)
-        return [discard_command, draw_command]
+        # discard_command = CommandDiscard(self.player_index, card_discard.hand_index, not state.hint_token_capped)
+        commands.append(discard_command)
+        if state.number_of_cards_in_deck > 0:
+            commands.append(draw_command)
+        return commands
 
     def play(self, state: State) -> Action:
 

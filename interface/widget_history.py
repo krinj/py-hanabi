@@ -38,7 +38,10 @@ class WidgetHistory:
         self.list_widget.currentItemChanged.connect(self.on_item_changed)
 
     def on_item_changed(self, item):
-        self.action_set_command_index(item.index)
+        if item is not None:
+            self.action_set_command_index(item.index)
+        else:
+            self.action_set_command_index(None)
 
     def update(self, history: List[Command]):
         self.list_widget.clear()

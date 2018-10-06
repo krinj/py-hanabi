@@ -29,7 +29,8 @@ class State:
         self.hint_tokens = 0
         self.fuse_tokens = 0
         self.rounds_left = None
-        self.game_has_ended = False
+        self.grace_rounds: int = 0
+        # self.game_has_ended = False
 
     @property
     def number_of_players(self) -> int:
@@ -52,17 +53,23 @@ class State:
 
         self.hint_tokens = hint_tokens
         self.fuse_tokens = fuse_tokens
-        self.rounds_left = None
-        self.game_has_ended = False
+        self.grace_rounds = n_players + 1
 
-    def on_round_end(self):
-        if self.rounds_left is None:
-            if len(self.deck) == 0:
-                self.rounds_left = 4
-        else:
-            self.rounds_left -= 1
-            if self.rounds_left == 0:
-                self.game_has_ended = True
+        self.rounds_left = None
+        # self.game_has_ended = False
+
+    @property
+    def game_ended(self) -> bool:
+        return self.grace_rounds == 0 or self.fuse_tokens == 0
+
+    # def on_round_end(self):
+    #     if self.rounds_left is None:
+    #         if len(self.deck) == 0:
+    #             self.rounds_left = 4
+    #     else:
+    #         self.rounds_left -= 1
+    #         if self.rounds_left == 0:
+    #             self.game_has_ended = True
 
     def _draw_initial_cards(self):
         """ Draw the starting cards for the game. """

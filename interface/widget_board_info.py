@@ -22,6 +22,7 @@ class WidgetBoardInfo:
         self.n_fuse_label: QLabel = None
         self.n_hint_label: QLabel = None
         self.n_score_label: QLabel = None
+        self.n_grace_rounds: QLabel = None
 
         self.discard_list: QListWidget = None
         self.firework_list: QListWidget = None
@@ -42,6 +43,7 @@ class WidgetBoardInfo:
         self.n_fuse_label = QLabel(f"Fuse Tokens: --")
         self.n_hint_label = QLabel(f"Hint Tokens: --")
         self.n_score_label = QLabel(f"Score: --")
+        self.n_grace_rounds = QLabel()
 
         self.discard_list = QListWidget()
         self.firework_list = QListWidget()
@@ -52,6 +54,7 @@ class WidgetBoardInfo:
         self.layout.addWidget(self.n_fuse_label)
         self.layout.addWidget(self.n_hint_label)
         self.layout.addWidget(self.n_score_label)
+        self.layout.addWidget(self.n_grace_rounds)
 
         self.layout.addItem(QSpacerItem(0, 20))
         self.layout.addWidget(QLabel("Playable Cards"))
@@ -68,24 +71,19 @@ class WidgetBoardInfo:
         self.n_fuse_label.setText(f"Fuse Tokens: {state.fuse_tokens}")
         self.n_hint_label.setText(f"Hint Tokens: {state.hint_tokens}")
         self.n_score_label.setText(f"Score: {len(state.fireworks)}")
+        self.n_grace_rounds.setText(f"Grace Rounds: {max(0, state.grace_rounds - 1)}")
 
         self.discard_list.clear()
         for card in state.discard_pile:
             item = QListWidgetItem(self.discard_list)
             item.setText(card.label)
-            item.setForeground(self.color_map[card.color])
+            if state.get_discard_score(card) == 1:
+                item.setForeground(QColor(50, 50, 50))
+            else:
+                item.setForeground(self.color_map[card.color])
 
         self.firework_list.clear()
         for card in state.playable_cards:
             item = QListWidgetItem(self.firework_list)
             item.setText(card.label)
             item.setForeground(self.color_map[card.color])
-
-
-
-
-    # def update(self):
-    #     self.list_widget.clear()
-    #     for i in range(100):
-    #         item = QListWidgetItem(self.list_widget)
-    #         item.setText(f"Item {i}")

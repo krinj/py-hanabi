@@ -25,15 +25,19 @@ class CommandPlay(Command):
 
         if self.is_playable:
             state.fireworks.append(card)
-            self.long_description = f"Player {self.player_index} Successfully Plays {card.label}."
+            self.long_description = f"Player {self.player_index + 1} Successfully Plays {card.label}."
+            if card.number == 5:
+                state.hint_tokens += 1
         else:
             state.discard_pile.append(card)
             state.fuse_tokens -= 1
-            self.long_description = f"Player {self.player_index} Wrongly Plays {card.label}."
+            self.long_description = f"Player {self.player_index + 1} Wrongly Plays {card.label}."
 
     def back(self, state: State):
         if self.is_playable:
             card = state.fireworks.pop()
+            if card.number == 5:
+                state.hint_tokens -= 1
         else:
             card = state.discard_pile.pop()
             state.fuse_tokens += 1
