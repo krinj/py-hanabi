@@ -45,7 +45,7 @@ class WidgetHand:
         self.layout.addWidget(self.hand_group)
 
         for i in range(5):
-            widget_card = WidgetCard()
+            widget_card = WidgetCard(self.player_index)
             self.cards.append(widget_card)
             self.card_layout.addWidget(widget_card)
 
@@ -63,12 +63,7 @@ class WidgetHand:
             if i < len(hand):
                 card = hand[i]
                 self.card_layout.addWidget(widget_card)
-
-                if state.player_index == self.player_index:
-                    widget_card.update(card.observed_color, card.observed_number)
-                else:
-                    widget_card.update(card.color, card.number)
-
+                widget_card.update(state, card)
             else:
                 widget_card.setParent(None)
 

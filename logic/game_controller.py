@@ -38,7 +38,6 @@ class GameController:
         game_ended = False
         while not game_ended:
             game_ended = self.play()
-        pass
 
     @property
     def latest_command_index(self) -> int:

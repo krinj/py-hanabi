@@ -3,8 +3,8 @@
 """
 <ENTER DESCRIPTION HERE>
 """
-from typing import Dict, List
 
+from typing import Dict, List
 from py_hanabi.card import Color, Card
 from py_hanabi.settings import CARD_DECK_DISTRIBUTION
 
@@ -60,30 +60,31 @@ class CardCounter:
 class CardMatrix:
     def __init__(self, hand_index: int=None):
         # TODO: Turn this into a hash table for faster recall.
-        self.stats: List[CardStat] = []
+        self.stats: Dict[(Color, int), CardStat] = {}
         self.hand_index: int = hand_index
 
     def add(self, stat: CardStat):
-        self.stats.append(stat)
+        self.stats[(stat.color, stat.number)] = stat
 
     @property
     def rating_play(self):
         score = 0
-        for stat in self.stats:
+        for _, stat in self.stats.items():
             score += stat.probability * stat.rating_play
         return score
 
     @property
     def rating_discard(self):
         score = 0
-        for stat in self.stats:
+        for _, stat in self.stats.items():
             score += stat.probability * stat.rating_discard
         return score
 
     def __repr__(self):
         desc = ""
-        for stat in self.stats:
-            desc += f"[{stat.color} {stat.number}]: {(100 * stat.probability):.0f}% P: {stat.rating_play} D: {stat.rating_discard}\n"
+        for _, stat in self.stats.items():
+            desc += f"[{stat.color} {stat.number}]: " \
+                    f"{(100 * stat.probability):.0f}% P: {stat.rating_play} D: {stat.rating_discard}\n"
 
         desc += "\n"
         desc += f"Play Rating: {self.rating_play:.2f}\n"

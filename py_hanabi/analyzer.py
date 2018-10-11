@@ -32,8 +32,6 @@ def get_card_matrix(state: State, player_index: int, known_color: Color=None, kn
             stat.rating_discard = get_rating_discard(state, player_index, c, n, known_color, known_number)
             card_matrix.add(stat)
 
-    # To do this we need to know how
-    # print(card_matrix)
     return card_matrix
 
 
