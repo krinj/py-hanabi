@@ -49,7 +49,7 @@ def get_card_matrix(state: State, player_index: int, known_color: Color=None, kn
     return card_matrix
 
 
-def generate_observed_matrix(state: State, player_index: int):
+def generate_observed_matrix(state: State, player_index: int, offhand_index: int = None):
 
     # Eliminate cards based on what we see.
     counter: CardCounter = CardCounter.deck()
@@ -60,7 +60,7 @@ def generate_observed_matrix(state: State, player_index: int):
         counter.add(card.color, card.number, -1)
 
     for i in range(state.number_of_players):
-        if i != player_index:
+        if i != player_index and i != offhand_index:
             for card in state.hands[i]:
                 counter.add(card.color, card.number, -1)
     return counter.card_map.copy()
@@ -153,7 +153,7 @@ def get_hint_rating(state: State, hint: ActionHint) -> float:
     best_matrix = None
     total_gain = 0
 
-    observed_matrix = generate_observed_matrix(state, hint.target_index)
+    observed_matrix = generate_observed_matrix(state, hint.target_index, hint.player_index)
 
     for card in hand:
         original_matrix = get_card_matrix(

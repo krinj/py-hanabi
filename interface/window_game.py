@@ -92,7 +92,7 @@ class WindowGame(Window):
         self.render_state(self.game_controller.state)
 
     def on_press_play(self):
-        self.games = 500
+        self.games = 100
         self.total_score = 0
         self.total_games = 0
         self.start_new_game()
