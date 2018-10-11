@@ -22,20 +22,37 @@ class CardStat:
 
 
 class CardCounter:
-    def __init__(self):
-        self.card_map: Dict[str, int] = {}
 
-        # Initialize an empty map.
-        for c in Color:
-            for n in range(1, 6):
-                self.set(c, n, 0)
+    deck_map: Dict[tuple, int] = None
+    empty_map: Dict[tuple, int] = None
+
+    def __init__(self):
+        self.card_map: Dict[tuple, int] = self.get_empty_deck().copy()
+
+    @classmethod
+    def get_empty_deck(cls):
+        """ Create a basic empty deck. """
+        if cls.empty_map is None:
+            cls.empty_map = {}
+            for c in Color:
+                for n in range(1, 6):
+                    key = Card.get_key(c, n)
+                    cls.empty_map[key] = 0
+
+        return cls.empty_map
 
     @staticmethod
     def deck() -> 'CardCounter':
         card_counter = CardCounter()
-        deck = Card.generate_deck()
-        for card in deck:
-            card_counter.add(card.color, card.number, 1)
+        if CardCounter.deck_map is None:
+            deck = Card.generate_deck()
+            card_map: Dict[tuple, int] = CardCounter.get_empty_deck()
+            for card in deck:
+                card_map[card.key] += 1
+
+            CardCounter.deck_map = card_map
+
+        card_counter.deck_map = CardCounter.deck_map.copy()
         return card_counter
 
     def set(self, c: Color, n: int, value: int):

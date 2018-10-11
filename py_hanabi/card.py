@@ -80,12 +80,12 @@ class Card:
         return self._id
 
     @property
-    def key(self) -> str:
+    def key(self) -> tuple:
         return self.get_key(self.color, self.number)
 
     @staticmethod
-    def get_key(c: Color, n: int) -> str:
-        return f"{c}_{n}"
+    def get_key(c: Color, n: int) -> tuple:
+        return c, n
 
     @property
     def number(self) -> int:

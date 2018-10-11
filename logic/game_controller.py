@@ -7,6 +7,7 @@ from typing import List
 
 from logic.command import Command
 from logic.command_next_player import CommandNextPlayer
+from py_hanabi import analyzer
 from py_hanabi.agent import Agent
 from py_hanabi.card import Card
 from py_hanabi.state import State
@@ -66,6 +67,7 @@ class GameController:
 
         if self.state.game_ended:
             self.history.append(Command("Game Over", "The game is over."))
+            analyzer.write_timers()
             return True
 
         return False

@@ -4,21 +4,30 @@
 <ENTER DESCRIPTION HERE>
 """
 
-from typing import List
-
+from typing import List, Dict
 from logic.command_hint import CommandHint
 from py_hanabi.action import ActionHint
 from py_hanabi.card import Color, Card
 from py_hanabi.card_matrix import CardMatrix, CardStat, CardCounter
 from py_hanabi.state import State
+from py_hanabi.timer import Timer
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
 
+T_CARD_MATRIX_TIMER = "get_card_matrix"
+T_HINT_RATING = "get_hint_rating"
+T_VALID_HINTS = "valid_hints"
+T_MARKER_1 = "marker_1"
+T_MARKER_2 = "marker_2"
+
 
 def get_card_matrix(state: State, player_index: int, known_color: Color=None, known_number: int=None,
-                    not_color: List[Color] = None, not_number: List[int] = None) -> CardMatrix:
+                    not_color: List[Color] = None, not_number: List[int] = None,
+                    observed_matrix: Dict[tuple, int] = None) -> CardMatrix:
     """ Get a card matrix with all the possible cards this card could be. """
+
+    Timer.start(T_CARD_MATRIX_TIMER)
     card_matrix: CardMatrix = CardMatrix()
 
     for c in Color:
@@ -27,35 +36,53 @@ def get_card_matrix(state: State, player_index: int, known_color: Color=None, kn
             stat.color = c
             stat.number = n
             stat.probability = get_card_probability(state, player_index, c, n, known_color, known_number,
-                                                    not_color, not_number)
-            stat.rating_play = get_rating_play(state, player_index, c, n, known_color, known_number)
-            stat.rating_discard = get_rating_discard(state, player_index, c, n, known_color, known_number)
+                                                    not_color, not_number, observed_matrix)
+
+            stat.rating_play = get_rating_play(state, c, n)
+            Timer.start(T_MARKER_1)
+            stat.rating_discard = get_rating_discard(state, c, n)
+            Timer.stop(T_MARKER_1)
+
             card_matrix.add(stat)
 
+    Timer.stop(T_CARD_MATRIX_TIMER)
     return card_matrix
+
+
+def generate_observed_matrix(state: State, player_index: int):
+
+    # Eliminate cards based on what we see.
+    counter: CardCounter = CardCounter.deck()
+    for card in state.discard_pile:
+        counter.add(card.color, card.number, -1)
+
+    for card in state.fireworks:
+        counter.add(card.color, card.number, -1)
+
+    for i in range(state.number_of_players):
+        if i != player_index:
+            for card in state.hands[i]:
+                counter.add(card.color, card.number, -1)
+    return counter.card_map.copy()
 
 
 def get_card_probability(
         state: State, player_index: int, c: Color, n: int,
         known_color: Color=None, known_number: int=None,
-        not_color: List[Color]=None, not_number: List[int]=None) -> float:
+        not_color: List[Color]=None, not_number: List[int]=None,
+        observed_matrix: Dict[tuple, int]=None) -> float:
 
     # Find all cards in the deck.
-    counter: CardCounter = CardCounter.deck()
+    counter = CardCounter()
 
-    # Eliminate cards based on what we see.
-    seen_cards: List[Card] = []
-    seen_cards += state.discard_pile
-    seen_cards += state.fireworks
-
-    for i in range(len(state.hands)):
-        if i != player_index:
-            seen_cards += state.hands[i]
-
-    for card in seen_cards:
-        counter.add(card.color, card.number, -1)
+    if observed_matrix is None:
+        counter.card_map = generate_observed_matrix(state, player_index)
+    else:
+        counter.card_map = observed_matrix.copy()
 
     # Eliminate cards we know it cannot be.
+
+    Timer.start(T_MARKER_2)
     for c_i, n_i in [(c_i, n_i) for c_i in Color for n_i in range(1, 6)]:
         if (known_color is not None and known_color != c_i) or (known_number is not None and known_number != n_i):
             counter.set(c_i, n_i, 0)
@@ -70,26 +97,25 @@ def get_card_probability(
         return 0
 
     probability = card_count/total_count
+    Timer.stop(T_MARKER_2)
     return probability
 
 
 def get_rating_play(
-        state: State, player_index: int, c: Color, n: int,
-        known_color: Color=None, known_number: int=None) -> float:
+        state: State, c: Color, n: int) -> float:
     """ Get a rating for this card to be played. """
     if state.is_card_playable(Card(n, c)):
         return 1.0
     return 0.0
 
 
-def get_rating_discard(
-        state: State, player_index: int, c: Color, n: int,
-        known_color: Color=None, known_number: int=None) -> float:
+def get_rating_discard(state: State, c: Color, n: int) -> float:
     return state.get_discard_score(Card(n, c))
 
 
 def get_valid_hint_commands(state: State, player_index: int) -> List[CommandHint]:
 
+    Timer.start(T_VALID_HINTS)
     commands = []
 
     for i in range(len(state.hands)):
@@ -116,58 +142,34 @@ def get_valid_hint_commands(state: State, player_index: int) -> List[CommandHint
     for command in commands:
         command.rating = get_hint_rating(state, command)
 
+    Timer.stop(T_VALID_HINTS)
     return commands
 
 
-def get_valid_hint_actions(state: State, player_index: int) -> List[ActionHint]:
-
-    actions = []
-
-
-    for i in range(len(state.hands)):
-        if i != player_index:
-
-            map_colors = {}
-            map_numbers = {}
-
-            hand = state.get_player_hand(i)
-            for card in hand:
-                if not card.hint_received_color:
-                    map_colors[card.color] = True
-                if not card.hint_received_number:
-                    map_numbers[card.number] = True
-
-            for c in map_colors:
-                action = ActionHint(player_index, i, None, c)
-                actions.append(action)
-
-            for n in map_numbers:
-                action = ActionHint(player_index, i, n, None)
-                actions.append(action)
-
-    for action in actions:
-        action.rating = get_hint_rating(state, action)
-
-    return actions
-
-
 def get_hint_rating(state: State, hint: ActionHint) -> float:
+    Timer.start(T_HINT_RATING)
     hand = state.get_player_hand(hint.target_index)
     max_gain = -1
     best_matrix = None
     total_gain = 0
 
+    observed_matrix = generate_observed_matrix(state, hint.target_index)
+
     for card in hand:
-        original_matrix = get_card_matrix(state, hint.target_index, card.observed_color, card.observed_number)
+        original_matrix = get_card_matrix(
+            state, hint.target_index, card.observed_color, card.observed_number,
+            observed_matrix=observed_matrix)
         post_matrix = original_matrix
 
         if hint.color is not None and hint.color == card.color:
             # print(f"Get Hint C {hint.color} - {card.color}")
-            post_matrix = get_card_matrix(state, hint.target_index, hint.color, card.observed_number)
+            post_matrix = get_card_matrix(
+                state, hint.target_index, hint.color, card.observed_number, observed_matrix=observed_matrix)
 
         if hint.number is not None and hint.number == card.number:
             # print(f"Get Hint R {hint.number} - {card.number}")
-            post_matrix = get_card_matrix(state, hint.target_index, card.observed_color, hint.number)
+            post_matrix = get_card_matrix(
+                state, hint.target_index, card.observed_color, hint.number, observed_matrix=observed_matrix)
 
         gain = post_matrix.rating_play - original_matrix.rating_play
         discard_gain = (post_matrix.rating_discard - original_matrix.rating_discard) * 0.5
@@ -187,12 +189,14 @@ def get_hint_rating(state: State, hint: ActionHint) -> float:
             max_gain = gain
             best_matrix = post_matrix
 
-    # print(f"Hint Analysis: {hint.color} {hint.number} Player {hint.target_index}")
-    # print(f"Rating: {max_gain}")
-    # print(best_matrix)
-    # print()
+    Timer.stop(T_HINT_RATING)
     return total_gain
 
 
-def get_matrix(state: State, player_index: int, hand_index: int) -> float:
-    pass
+def write_timers():
+    Timer.end(T_CARD_MATRIX_TIMER)
+    Timer.end(T_HINT_RATING)
+    Timer.end(T_VALID_HINTS)
+    Timer.end(T_MARKER_1)
+    Timer.end(T_MARKER_2)
+

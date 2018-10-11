@@ -4,7 +4,7 @@
 The current state of the game.
 """
 from itertools import chain
-from typing import List
+from typing import List, Dict
 from py_hanabi.card import Card, Color
 from py_hanabi.settings import N_HINT_TOKENS_MAX
 
@@ -30,7 +30,14 @@ class State:
         self.fuse_tokens = 0
         self.rounds_left = None
         self.grace_rounds: int = 0
-        # self.game_has_ended = False
+
+        # State Temporary Maps.
+        self._playable_card_map: Dict[tuple, bool] = None
+        self._number_map: Dict[Color, int] = None
+
+    def set_dirty(self):
+        self._playable_card_map = None
+        self._number_map = None
 
     @property
     def number_of_players(self) -> int:
@@ -56,20 +63,10 @@ class State:
         self.grace_rounds = n_players + 1
 
         self.rounds_left = None
-        # self.game_has_ended = False
 
     @property
     def game_ended(self) -> bool:
         return self.grace_rounds == 0 or self.fuse_tokens == 0
-
-    # def on_round_end(self):
-    #     if self.rounds_left is None:
-    #         if len(self.deck) == 0:
-    #             self.rounds_left = 4
-    #     else:
-    #         self.rounds_left -= 1
-    #         if self.rounds_left == 0:
-    #             self.game_has_ended = True
 
     def _draw_initial_cards(self):
         """ Draw the starting cards for the game. """
@@ -132,25 +129,35 @@ class State:
     # Querying Functions.
     # ===================================================================================================
 
+    @property
+    def playable_map(self):
+        if self._playable_card_map is None:
+            self._playable_card_map = {}
+            for card in self.playable_cards:
+                self._playable_card_map[card.key] = True
+        return self._playable_card_map
+
+    @property
+    def number_map(self):
+        if self._number_map is None:
+            self._number_map = {}
+            for card in self.playable_cards:
+                self._number_map[card.color] = card.number
+        return self._number_map
+
     def is_card_playable(self, card: Card):
-        for playable_card in self.playable_cards:
-            if playable_card == card:
-                return True
-        return False
+        return card.key in self.playable_map
 
     def get_discard_score(self, card: Card):
-
-        for p in self.playable_cards:
-            if p.color == card.color:
-                if p.number > card.number:
-                    return 1
 
         if card.number == 5:
             return 0
 
-        for p in self.playable_cards:
-            if p == card:
-                return 0.2
+        if card.key in self.playable_map:
+            return 0.2
+
+        if card.color in self.number_map and card.number < self.number_map[card.color]:
+            return 1
 
         all_visible = list(chain.from_iterable(self.hands))
         same_count = sum([1 for c in all_visible if c == card])

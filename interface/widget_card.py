@@ -3,10 +3,11 @@
 """
 <ENTER DESCRIPTION HERE>
 """
+
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtCore import QRect, Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QMouseEvent, QColor
-from PyQt5.QtWidgets import QFrame, QLabel, QDialog, QPushButton, QTableWidget, QDesktopWidget, QTableWidgetItem, \
+from PyQt5.QtWidgets import QLabel, QDialog, QTableWidget, QDesktopWidget, QTableWidgetItem, \
     QVBoxLayout
 
 from py_hanabi import analyzer
