@@ -24,21 +24,37 @@ class GameController:
         for i in range(4):
             self.agents.append(Agent(i))
 
+        self.command_index: int = 0
         self.state: State = State()
         self.history: List[Command] = []
+
+        self.reset()
+
+    def reset(self):
+        self.state: State = State()
+        self.history: List[Command] = []
+        self.history.append(Command("Initialize Board", "Set up the game board."))
         deck = Card.generate_deck()
         self.state.reset(len(self.agents), deck, 8, 3)
-
-        self.history.append(Command("Initialize Board", "Set up the game board."))
         self.command_index: int = 0
 
-        # for i in range(10):
-        #     self.play()
-
     def auto_play(self):
-        game_ended = False
-        while not game_ended:
-            game_ended = self.play()
+
+        games = 3
+        total_score = 0
+        total_games = 0
+
+        while games > 0:
+            games -= 1
+            game_ended = False
+            self.reset()
+            while not game_ended:
+                game_ended = self.play()
+            total_score += self.state.score
+            total_games += 1
+
+        average_score = total_score/total_games
+        print(f"Average Score over {total_games} games: {average_score}")
 
     @property
     def latest_command_index(self) -> int:

@@ -3,6 +3,7 @@
 """
 The current state of the game.
 """
+
 from itertools import chain
 from typing import List, Dict
 from py_hanabi.card import Card, Color

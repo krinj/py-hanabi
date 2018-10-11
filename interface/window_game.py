@@ -92,15 +92,34 @@ class WindowGame(Window):
         self.render_state(self.game_controller.state)
 
     def on_press_play(self):
-        # game_ended = False
+        self.games = 500
+        self.total_score = 0
+        self.total_games = 0
+        self.start_new_game()
+
+    def start_new_game(self):
+        self.game_controller.reset()
+        self.play_single_move()
+
+    def play_single_move(self):
         game_ended = self.game_controller.play()
         self.update()
         self.set_history_index()
 
         if not game_ended:
             t = QtCore.QTimer()
-            t.singleShot(10, self.on_press_play)
+            t.singleShot(5, self.play_single_move)
+        else:
+            self.total_score += self.game_controller.state.score
+            self.total_games += 1
+            self.games -= 1
 
+            if self.games > 0:
+                t = QtCore.QTimer()
+                t.singleShot(5, self.start_new_game)
+            else:
+                average_score = self.total_score / self.total_games
+                print(f"Average Score over {self.total_games} games: {average_score}")
 
     @staticmethod
     def create_layout_group(name: str, width: int = None, horizontal: bool = False) -> (QWidget, QBoxLayout):
