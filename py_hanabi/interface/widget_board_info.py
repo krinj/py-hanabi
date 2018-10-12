@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Shows extra data about the game board.
 """
-from typing import Dict
 
-from PyQt5.QtCore import QMargins
+from typing import Dict
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QLabel, QBoxLayout, QListWidget, QListWidgetItem, QSpacerItem, QAbstractItemView
 

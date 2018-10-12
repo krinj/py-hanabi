@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+A Command pattern class for all state modification actions.
 """
-from abc import abstractmethod
 
+from abc import abstractmethod
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"

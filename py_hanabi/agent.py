@@ -5,11 +5,11 @@ An agent to play the Hanabi game.
 """
 
 from typing import List
-from commands.command import Command
-from commands.command_discard import CommandDiscard
-from commands.command_draw import CommandDraw
-from commands.command_hint import CommandHint
-from commands.command_play import CommandPlay
+from py_hanabi.commands.command import Command
+from py_hanabi.commands.command_discard import CommandDiscard
+from py_hanabi.commands.command_draw import CommandDraw
+from py_hanabi.commands.command_hint import CommandHint
+from py_hanabi.commands.command_play import CommandPlay
 from py_hanabi import analyzer
 from py_hanabi.analyzer import generate_observed_matrix
 from py_hanabi.card import Card
@@ -74,7 +74,6 @@ class Agent:
         """ Analyze the state and return a command to execute. """
 
         # Set the state dirty so that it resets all of its values.
-        state.set_dirty()
         hand = state.get_player_hand(self.player_index)
 
         matrices = self._generate_card_matrix(state)
@@ -99,22 +98,6 @@ class Agent:
         if state.hint_tokens > 0:
             hints = analyzer.get_valid_hint_commands(state, self.player_index)
             return [self.get_best_hint(hints)]
-
-        # Play a hinted card.
-        # if state.fuse_tokens > 1:
-        #     for m in matrices:
-        #         card = hand[m.hand_index]
-        #         if card.hint_received_color or card.hint_received_number:
-        #             if m.rating_play > m.rating_discard:
-        #                 m.play_rating_factor = self.hint_play_boost
-        #
-        #     play_matrix = sorted(matrices, key=lambda x: x.rating_play, reverse=True)
-        #     card_play = play_matrix[0]
-        #     if card_play.rating_play >= self.normal_play_limit:
-        #         card = hand[card_play.hand_index]
-        #         print(f"Desperate Play: {state.is_card_playable(card)}")
-        #         play_command = CommandPlay(self.player_index, card_play.hand_index, state.is_card_playable(card))
-        #         return self._execute_and_draw(state, play_command)
 
         # No good options, forced to discard.
         return self._execute_and_draw(state, discard_command)

@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Runs the Hanabi Interface for game simulation.
 """
 
-from interface.hanabi_interface import HanabiInterface
+from py_hanabi.interface.hanabi_interface import HanabiInterface
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"

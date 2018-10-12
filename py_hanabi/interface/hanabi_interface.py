@@ -8,8 +8,8 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QMainWindow, QDesktopWidget, QApplication
 
-from interface.hanabi_window import HanabiWindow
-from interface.window import Window
+from py_hanabi.interface.hanabi_window import HanabiWindow
+from py_hanabi.interface.window import Window
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"

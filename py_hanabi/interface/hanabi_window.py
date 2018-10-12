@@ -10,11 +10,11 @@ from PyQt5.QtGui import QResizeEvent
 from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QWidget, QGroupBox, \
     QVBoxLayout, QBoxLayout, QLabel
 
-from interface.widget_board_info import WidgetBoardInfo
-from interface.widget_game_control import WidgetGameControl
-from interface.widget_hand import WidgetHand
-from interface.widget_history import WidgetHistory
-from interface.window import Window
+from py_hanabi.interface.widget_board_info import WidgetBoardInfo
+from py_hanabi.interface.widget_game_control import WidgetGameControl
+from py_hanabi.interface.widget_hand import WidgetHand
+from py_hanabi.interface.widget_history import WidgetHistory
+from py_hanabi.interface.window import Window
 from py_hanabi.engine import Engine
 from py_hanabi.settings import N_SIMULATIONS
 from py_hanabi.state import State

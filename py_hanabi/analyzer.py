@@ -5,9 +5,9 @@ This class is used to analyze board situations and generate a probability matrix
 """
 
 from typing import List, Dict
-from commands.command_hint import CommandHint
 from py_hanabi.card import Color, Card
 from py_hanabi.card_matrix import CardMatrix, CardStat, CardCounter
+from py_hanabi.commands.command_hint import CommandHint
 from py_hanabi.hint_stat import HintStat
 from py_hanabi.state import State
 

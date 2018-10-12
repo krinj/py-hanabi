@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Control options for the game.
 """
+
 from PyQt5.QtWidgets import QBoxLayout, QPushButton, QLabel
 
 __author__ = "Jakrin Juangbhanich"

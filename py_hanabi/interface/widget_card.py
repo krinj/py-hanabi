@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Display a single card UI.
 """
 
 from PyQt5 import QtGui, QtCore

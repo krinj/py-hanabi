@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Give a hint to a player.
 """
-from typing import List
 
-from commands.command import Command
-from py_hanabi.card import Color, Card
+from py_hanabi.commands.command import Command
+from py_hanabi.card import Color
 from py_hanabi.hint_stat import HintStat
 from py_hanabi.state import State
 
@@ -36,10 +35,9 @@ class CommandHint(Command):
         self.distance = 4 - self.distance
 
     def forward(self, state: State):
-        state.hint_tokens -= 1
 
+        state.hint_tokens -= 1
         hand = state.get_player_hand(self.target_index)
-        cards_hinted: List[Card] = []
 
         if self.number is not None:
             for card in hand:
@@ -53,10 +51,9 @@ class CommandHint(Command):
                     f"Player {self.player_index + 1} Gives Hint to Player {self.target_index + 1}: {self.color}"
 
     def back(self, state: State):
-        state.hint_tokens += 1
 
+        state.hint_tokens += 1
         hand = state.get_player_hand(self.target_index)
-        cards_hinted: List[Card] = []
 
         if self.number is not None:
             for card in hand:

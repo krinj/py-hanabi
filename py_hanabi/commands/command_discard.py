@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Discard the target card.
 """
 
-from commands.command import Command
-from py_hanabi.settings import N_HINT_TOKENS_MAX
+from py_hanabi.commands.command import Command
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"
@@ -23,8 +22,7 @@ class CommandDiscard(Command):
     def forward(self, state: State):
 
         card = state.hands[self.player_index].pop(self.card_index)
-        state.discard_pile.append(card)
-        state.set_dirty()
+        state.add_to_discard_pile(card)
 
         if self.should_add_hint:
             state.hint_tokens += 1
@@ -32,7 +30,7 @@ class CommandDiscard(Command):
         self.long_description = f"Player {self.player_index + 1} Discards {card.label}."
 
     def back(self, state: State):
-        card = state.discard_pile.pop()
+        card = state.pop_from_discard_pile()
         state.hands[self.player_index].insert(self.card_index, card)
         state.set_dirty()
 

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Draw a card for the player.
 """
 
-from commands.command import Command
+from py_hanabi.commands.command import Command
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"

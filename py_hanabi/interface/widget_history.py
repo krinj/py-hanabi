@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Display a scrollable history list of commands.
 """
+
 from typing import List, Callable
-
 from PyQt5.QtWidgets import QBoxLayout, QListWidget, QListWidgetItem, QLabel
-
-from commands.command import Command
+from py_hanabi.commands.command import Command
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"

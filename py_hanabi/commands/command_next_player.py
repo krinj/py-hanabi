@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Change the player index.
 """
-from commands.command import Command
+
+from py_hanabi.commands.command import Command
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"
@@ -17,7 +18,6 @@ class CommandNextPlayer(Command):
 
     def forward(self, state: State):
         state.player_index += 1
-        state.round_index += 1
         if state.player_index >= state.number_of_players:
             state.player_index = 0
 
@@ -28,7 +28,6 @@ class CommandNextPlayer(Command):
 
     def back(self, state: State):
         state.player_index -= 1
-        state.round_index -= 1
         if state.player_index < 0:
             state.player_index = state.number_of_players - 1
 

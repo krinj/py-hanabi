@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Display the player's hand.
 """
 
 from typing import List
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QBoxLayout, QGroupBox, QHBoxLayout, QVBoxLayout, QLabel
 
-from interface.widget_card import WidgetCard
+from py_hanabi.interface.widget_card import WidgetCard
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"
