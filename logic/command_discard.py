@@ -24,6 +24,7 @@ class CommandDiscard(Command):
 
         card = state.hands[self.player_index].pop(self.card_index)
         state.discard_pile.append(card)
+        state.set_dirty()
 
         if self.should_add_hint:
             state.hint_tokens += 1
@@ -33,6 +34,7 @@ class CommandDiscard(Command):
     def back(self, state: State):
         card = state.discard_pile.pop()
         state.hands[self.player_index].insert(self.card_index, card)
+        state.set_dirty()
 
         if self.should_add_hint:
             state.hint_tokens -= 1

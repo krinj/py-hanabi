@@ -7,6 +7,7 @@ The current state of the game.
 from itertools import chain
 from typing import List, Dict
 from py_hanabi.card import Card, Color
+from py_hanabi.card_matrix import CardCounter
 from py_hanabi.settings import N_HINT_TOKENS_MAX
 
 __author__ = "Jakrin Juangbhanich"
@@ -35,10 +36,12 @@ class State:
         # State Temporary Maps.
         self._playable_card_map: Dict[tuple, bool] = None
         self._number_map: Dict[Color, int] = None
+        self._block_map: Dict[Color, bool] = None
 
     def set_dirty(self):
         self._playable_card_map = None
         self._number_map = None
+        self._block_map = None
 
     @property
     def number_of_players(self) -> int:
@@ -146,10 +149,43 @@ class State:
                 self._number_map[card.color] = card.number
         return self._number_map
 
+    @property
+    def blocked_map(self):
+        """ Return a map of colors to bool, whether this color is completely blocked or not. """
+        # A blocked color is one that can no longer be played because a part of the chain is discarded.
+        if self._block_map is None:
+            block_map: Dict[Color, bool] = {}
+            for c in Color:
+                block_map[c] = False
+
+            # For each playable card...
+            # Get the total number in the deck...
+            # And check if the discard pile has depleted it.
+
+            deck_map = CardCounter.deck_map
+            for card in self.playable_cards:
+                total_number = deck_map[card.key]
+                for d_card in self.discard_pile:
+                    if d_card == card:
+                        total_number -= 1
+
+                if total_number <= 0:
+                    block_map[card.color] = True
+                else:
+                    block_map[card.color] = False
+
+            self._block_map = block_map
+
+        return self._block_map
+
     def is_card_playable(self, card: Card):
         return card.key in self.playable_map
 
     def get_discard_score(self, card: Card):
+
+        if self.blocked_map[card.color]:
+            # This card is no longer playable.
+            return 1
 
         if card.number == 5:
             return 0
@@ -158,6 +194,7 @@ class State:
             return 0.2
 
         if card.color in self.number_map and card.number < self.number_map[card.color]:
+            # This card is no longer playable.
             return 1
 
         all_visible = list(chain.from_iterable(self.hands))
