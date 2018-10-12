@@ -3,11 +3,11 @@
 """
 A card (duh).
 """
+
 import random
 import uuid
 from enum import Enum
 from typing import List
-
 from py_hanabi.settings import CARD_DECK_DISTRIBUTION
 
 __author__ = "Jakrin Juangbhanich"
@@ -136,3 +136,4 @@ class Card:
             Color.WHITE: "White",
         }
         return color_labels[color]
+

@@ -45,8 +45,9 @@ Simulation result after 100 games: **15.71**
 | Agent increases probability of hinted cards (1.25 boost)     | 16.92  |
 | Same (1.50 boost)                                            | 17.05  |
 | Same (1.35 boost)                                            | 17.15  |
+| Aggressive 1.35 boost without discard policy.                | 17.48  |
 
-Simulation result after 100 games: **16.68**
+Simulation result after 100 games: **17.27**
 
 ### Version 4: Hint Fixing
 

@@ -1,21 +1,20 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Tools for counting and tracking card statistics.
 """
 
-from typing import Dict, List
+from typing import Dict
 from py_hanabi.card import Color, Card
-from py_hanabi.settings import CARD_DECK_DISTRIBUTION
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
 
 
 class CardStat:
-    def __init__(self):
-        self.color: Color = None
-        self.number: int = 0
+    def __init__(self, color: Color, number: int):
+        self.color: Color = color
+        self.number: int = number
         self.probability: float = 0.0
         self.rating_play: float = 0.0
         self.rating_discard: float = 0.0
@@ -43,6 +42,7 @@ class CardCounter:
 
     @staticmethod
     def deck() -> 'CardCounter':
+        """ Create a deck based on game settings. """
         card_counter = CardCounter()
         if CardCounter.deck_map is None:
             deck = Card.generate_deck()
@@ -76,7 +76,6 @@ class CardCounter:
 
 class CardMatrix:
     def __init__(self, hand_index: int=None):
-        # TODO: Turn this into a hash table for faster recall.
         self.stats: Dict[(Color, int), CardStat] = {}
         self.hand_index: int = hand_index
         self.play_rating_factor: float = 1.0

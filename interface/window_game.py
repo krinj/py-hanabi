@@ -16,12 +16,11 @@ from interface.widget_hand import WidgetHand
 from interface.widget_history import WidgetHistory
 from interface.window import Window
 from logic.game_controller import GameController
+from py_hanabi.settings import N_SIMULATIONS
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
-
-K_GAMES_TO_SIMULATE = 100
 
 
 class WindowGame(Window):
@@ -93,7 +92,7 @@ class WindowGame(Window):
         self.render_state(self.game_controller.state)
 
     def on_press_play(self):
-        self.games = K_GAMES_TO_SIMULATE
+        self.games = N_SIMULATIONS
         self.total_score = 0
         self.total_games = 0
         self._start_new_game()

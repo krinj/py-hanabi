@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+This class is used to analyze board situations and generate a probability matrix for each event.
 """
 
 from typing import List, Dict
@@ -10,48 +10,35 @@ from py_hanabi.card import Color, Card
 from py_hanabi.card_matrix import CardMatrix, CardStat, CardCounter
 from py_hanabi.hint_stat import HintStat
 from py_hanabi.state import State
-from py_hanabi.timer import Timer
+
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
-
-T_CARD_MATRIX_TIMER = "get_card_matrix"
-T_HINT_RATING = "get_hint_rating"
-T_VALID_HINTS = "valid_hints"
-T_MARKER_1 = "marker_1"
-T_MARKER_2 = "marker_2"
 
 
 def get_card_matrix(state: State, player_index: int, known_color: Color=None, known_number: int=None,
                     not_color: List[Color] = None, not_number: List[int] = None,
                     observed_matrix: Dict[tuple, int] = None) -> CardMatrix:
     """ Get a card matrix with all the possible cards this card could be. """
-
-    Timer.start(T_CARD_MATRIX_TIMER)
     card_matrix: CardMatrix = CardMatrix()
 
+    # For each possible card, work out its probability, play rating, and discard rating.
     for c in Color:
         for n in range(1, 6):
-            stat = CardStat()
-            stat.color = c
-            stat.number = n
-            stat.probability = get_card_probability(state, player_index, c, n, known_color, known_number,
-                                                    not_color, not_number, observed_matrix)
-
+            stat = CardStat(c, n)
+            stat.probability = get_card_probability(
+                state, player_index, c, n, known_color, known_number, not_color, not_number, observed_matrix)
             stat.rating_play = get_rating_play(state, c, n)
-            Timer.start(T_MARKER_1)
             stat.rating_discard = get_rating_discard(state, c, n)
-            Timer.stop(T_MARKER_1)
-
             card_matrix.add(stat)
 
-    Timer.stop(T_CARD_MATRIX_TIMER)
     return card_matrix
 
 
 def generate_observed_matrix(state: State, player_index: int, offhand_index: int = None):
+    """ Generate a dictionary mapping (card key to count) of all the cards that we can see. """
 
-    # Eliminate cards based on what we see.
+    # Start off with the known deck.
     counter: CardCounter = CardCounter.deck()
     for card in state.discard_pile:
         counter.add(card.color, card.number, -1)
@@ -85,8 +72,6 @@ def get_card_probability(
         counter.card_map = observed_matrix.copy()
 
     # Eliminate cards we know it cannot be.
-
-    Timer.start(T_MARKER_2)
     for c_i, n_i in [(c_i, n_i) for c_i in Color for n_i in range(1, 6)]:
         if (known_color is not None and known_color != c_i) or (known_number is not None and known_number != n_i):
             counter.set(c_i, n_i, 0)
@@ -101,7 +86,6 @@ def get_card_probability(
         return 0
 
     probability = card_count/total_count
-    Timer.stop(T_MARKER_2)
     return probability
 
 
@@ -114,12 +98,12 @@ def get_rating_play(
 
 
 def get_rating_discard(state: State, c: Color, n: int) -> float:
+    """ Get the discard rating for this card. """
     return state.get_discard_score(Card(n, c))
 
 
 def get_valid_hint_commands(state: State, player_index: int) -> List[CommandHint]:
-
-    Timer.start(T_VALID_HINTS)
+    """ Get a list of all hints that can be played this round. """
     commands = []
 
     for i in range(len(state.hands)):
@@ -146,39 +130,39 @@ def get_valid_hint_commands(state: State, player_index: int) -> List[CommandHint
     for command in commands:
         command.hint_stat = get_hint_rating(state, command)
 
-    Timer.stop(T_VALID_HINTS)
     return commands
 
 
 def get_hint_rating(state: State, hint: CommandHint) -> HintStat:
+    """ For the given hint, give it a score based on what it can accomplish. """
 
-    Timer.start(T_HINT_RATING)
+    # Get the prior information.
     hand = state.get_player_hand(hint.target_index)
-    hint_stat = HintStat()
     observed_matrix = generate_observed_matrix(state, hint.target_index, hint.player_index)
 
+    # HintStat is how we store this hint's effectiveness.
+    hint_stat = HintStat()
+
     for card in hand:
+
+        # Get the probability matrix for the known state, before and after.
         original_matrix = get_card_matrix(
             state, hint.target_index, card.observed_color, card.observed_number,
             observed_matrix=observed_matrix)
         post_matrix = original_matrix
 
+        # Simulate a color hint.
         if hint.color is not None and hint.color == card.color:
-            # print(f"Get Hint C {hint.color} - {card.color}")
             if not card.hint_received_color:
-                hint_stat.n_cards_affected += 1
-                if state.is_card_playable(card):
-                    hint_stat.true_playable_cards += 1
+                _set_hint_success(card, hint_stat, state)
 
             post_matrix = get_card_matrix(
                 state, hint.target_index, hint.color, card.observed_number, observed_matrix=observed_matrix)
 
+        # Simulate a number hint.
         if hint.number is not None and hint.number == card.number:
-            # print(f"Get Hint R {hint.number} - {card.number}")
             if not card.hint_received_number:
-                hint_stat.n_cards_affected += 1
-                if state.is_card_playable(card):
-                    hint_stat.true_playable_cards += 1
+                _set_hint_success(card, hint_stat, state)
 
             post_matrix = get_card_matrix(
                 state, hint.target_index, card.observed_color, hint.number, observed_matrix=observed_matrix)
@@ -201,14 +185,12 @@ def get_hint_rating(state: State, hint: CommandHint) -> HintStat:
         hint_stat.max_play_gain = max(gain, hint_stat.max_play_gain)
         hint_stat.max_discard_gain = max(gain, hint_stat.max_discard_gain)
 
-    Timer.stop(T_HINT_RATING)
     return hint_stat
 
 
-def write_timers():
-    Timer.end(T_CARD_MATRIX_TIMER)
-    Timer.end(T_HINT_RATING)
-    Timer.end(T_VALID_HINTS)
-    Timer.end(T_MARKER_1)
-    Timer.end(T_MARKER_2)
+def _set_hint_success(card, hint_stat, state):
+    """ If this hint adds new information, then mark this hint as successful. """
+    hint_stat.n_cards_affected += 1
+    if state.is_card_playable(card):
+        hint_stat.true_playable_cards += 1
 
