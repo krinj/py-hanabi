@@ -3,8 +3,10 @@
 """
 <ENTER DESCRIPTION HERE>
 """
+
 from logic.command import Command
 from py_hanabi.card import Color
+from py_hanabi.hint_stat import HintStat
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"
@@ -18,7 +20,7 @@ class CommandHint(Command):
         self.target_index: int = target_index
         self.number: int = number
         self.color: Color = color
-        self.rating: float = 0.0
+        self.hint_stat: HintStat = None
         self.distance: int = 0
 
         self.name: str = "Give Hint"
@@ -30,7 +32,7 @@ class CommandHint(Command):
             if i > 3:
                 i = 0
 
-        self.distance *= -1
+        self.distance = 4 - self.distance
 
     def forward(self, state: State):
         state.hint_tokens -= 1

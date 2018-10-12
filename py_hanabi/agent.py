@@ -8,6 +8,7 @@ from typing import List
 from logic.command import Command
 from logic.command_discard import CommandDiscard
 from logic.command_draw import CommandDraw
+from logic.command_hint import CommandHint
 from logic.command_play import CommandPlay
 from py_hanabi import analyzer
 from py_hanabi.analyzer import generate_observed_matrix
@@ -74,8 +75,7 @@ class Agent:
 
         if state.hint_tokens > 0:
             hints = analyzer.get_valid_hint_commands(state, self.player_index)
-            hints = sorted(hints, key=lambda x: (x.rating, x.distance), reverse=True)
-            return [hints[0]]
+            return [self.get_best_hint(hints)]
 
         # Discard Anyway
         # discard_command = CommandDiscard(self.player_index, card_discard.hand_index, not state.hint_token_capped)
@@ -84,3 +84,13 @@ class Agent:
             commands.append(draw_command)
         return commands
 
+    def get_best_hint(self, hints: List[CommandHint]) -> CommandHint:
+        hints = sorted(
+            hints,
+            key=lambda x: (x.distance * (x.hint_stat.enables_play > 0),
+                           # x.distance * (x.hint_stat.enables_discard > 0),
+                           # x.distance * (x.hint_stat.vital_reveal > 0),
+                           x.distance * (x.hint_stat.total_play_gain + (0.5 * x.hint_stat.total_discard_gain))),
+            reverse=True)
+
+        return hints[0]

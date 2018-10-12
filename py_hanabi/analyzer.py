@@ -9,6 +9,7 @@ from logic.command_hint import CommandHint
 from py_hanabi.action import ActionHint
 from py_hanabi.card import Color, Card
 from py_hanabi.card_matrix import CardMatrix, CardStat, CardCounter
+from py_hanabi.hint_stat import HintStat
 from py_hanabi.state import State
 from py_hanabi.timer import Timer
 
@@ -60,8 +61,12 @@ def generate_observed_matrix(state: State, player_index: int, offhand_index: int
         counter.add(card.color, card.number, -1)
 
     for i in range(state.number_of_players):
-        if i != player_index and i != offhand_index:
+        if i != player_index:
             for card in state.hands[i]:
+                # If this is the offhand player, only include the details we know.
+                if offhand_index == i:
+                    if not card.hint_received_color or not card.hint_received_number:
+                        continue
                 counter.add(card.color, card.number, -1)
     return counter.card_map.copy()
 
@@ -140,19 +145,17 @@ def get_valid_hint_commands(state: State, player_index: int) -> List[CommandHint
                 commands.append(command)
 
     for command in commands:
-        command.rating = get_hint_rating(state, command)
+        command.hint_stat = get_hint_rating(state, command)
 
     Timer.stop(T_VALID_HINTS)
     return commands
 
 
-def get_hint_rating(state: State, hint: ActionHint) -> float:
+def get_hint_rating(state: State, hint: CommandHint) -> HintStat:
+
     Timer.start(T_HINT_RATING)
     hand = state.get_player_hand(hint.target_index)
-    max_gain = -1
-    best_matrix = None
-    total_gain = 0
-
+    hint_stat = HintStat()
     observed_matrix = generate_observed_matrix(state, hint.target_index, hint.player_index)
 
     for card in hand:
@@ -171,26 +174,26 @@ def get_hint_rating(state: State, hint: ActionHint) -> float:
             post_matrix = get_card_matrix(
                 state, hint.target_index, card.observed_color, hint.number, observed_matrix=observed_matrix)
 
+            if not card.hint_received_number and hint.number == 5:
+                hint_stat.vital_reveal += 1
+
         gain = post_matrix.rating_play - original_matrix.rating_play
-        discard_gain = (post_matrix.rating_discard - original_matrix.rating_discard) * 0.5
+        discard_gain = post_matrix.rating_discard - original_matrix.rating_discard
 
         if post_matrix.rating_play > 0.99 and gain > 0:
-            gain = 1
+            hint_stat.enables_play += 1
 
         if post_matrix.rating_discard > 0.99 and discard_gain > 0:
-            discard_gain = 0.5
+            hint_stat.enables_discard += 1
 
-        gain = min(1, gain)
-        discard_gain = min(0.5, discard_gain)
+        hint_stat.total_play_gain += gain
+        hint_stat.total_discard_gain += discard_gain
 
-        total_gain += gain + discard_gain
-
-        if gain > max_gain:
-            max_gain = gain
-            best_matrix = post_matrix
+        hint_stat.max_play_gain = max(gain, hint_stat.max_play_gain)
+        hint_stat.max_discard_gain = max(gain, hint_stat.max_discard_gain)
 
     Timer.stop(T_HINT_RATING)
-    return total_gain
+    return hint_stat
 
 
 def write_timers():

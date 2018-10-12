@@ -23,7 +23,22 @@ Simulation result after 100 games: **15.12**
 
 Simulation result after 100 games: **15.57**
 
+### Version 4: Hint Accounting
+
+Simulation result after 100 games: **15.71**
+
 ### Version 5: Improved Hint Policy
+
+* Prioritize giving hint to 5's.
+* Prioritize cards that can be played.
+
+| Hint Policy                                                  | Result |
+| ------------------------------------------------------------ | ------ |
+| Play enabling, then highest play rating gain + 0.5 highest discard rating gain. | 16.05  |
+| Same as above, with discard enablers scored after play enablers. | 14.43  |
+| With vital reveal.                                           | 14.77  |
+| No discard_max rating.                                       | 15.40  |
+| total rating instead of max                                  | 15.58  |
 
 Simulation result after 100 games: **???**
 
