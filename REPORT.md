@@ -42,6 +42,9 @@ Simulation result after 100 games: **15.71**
 | discard policy only when 2 or more.                          | 15.87  |
 | prioritize hinting cards that can be played                  | 16.68  |
 | decreased 'play limit' parameter                             | 16.69  |
+| Agent increases probability of hinted cards (1.25 boost)     | 16.92  |
+| Same (1.50 boost)                                            | 17.05  |
+| Same (1.35 boost)                                            | 17.15  |
 
 Simulation result after 100 games: **16.68**
 
@@ -52,6 +55,10 @@ For version 4 of the agent, we will make the assumption that the agent is playin
 The key point I would like to create here, is that if an agent recieves a hint for a single card, and that card
 
 Simulation result after 100 games: **???**
+
+### Future Optimizations
+
+* Agent should take into account 'final round' actions. The current model still tries to give hints or discard on the last round. Instead, if there are fuse tokens remaining, it will be better off taking calculated risks.
 
 
 

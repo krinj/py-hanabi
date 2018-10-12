@@ -28,7 +28,7 @@ class Agent:
         self.normal_play_limit = 0.85
         self.safe_play_limit = 1.00
         self.discard_limit = 0.80
-        self.hint_play_boost = 1.50  # Boost play rating if the card is hinted,
+        self.hint_play_boost = 1.25  # Boost play rating if the card is hinted,
         # and play rating is higher than discard.
 
     def hand(self, state: State) -> List[Card]:

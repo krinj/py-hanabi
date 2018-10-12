@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+This is the main interface window for the Hanabi game UI.
 """
-import time
-from typing import List
 
+from typing import List
 from PyQt5 import QtCore
 from PyQt5.QtGui import QResizeEvent
 from PyQt5.QtWidgets import QMainWindow, QHBoxLayout, QWidget, QGroupBox, \
-    QVBoxLayout, QListWidget, QListWidgetItem, QBoxLayout, QLabel
+    QVBoxLayout, QBoxLayout, QLabel
 
 from interface.widget_board_info import WidgetBoardInfo
 from interface.widget_game_control import WidgetGameControl
@@ -21,6 +20,8 @@ from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
+
+K_GAMES_TO_SIMULATE = 100
 
 
 class WindowGame(Window):
@@ -92,23 +93,23 @@ class WindowGame(Window):
         self.render_state(self.game_controller.state)
 
     def on_press_play(self):
-        self.games = 100
+        self.games = K_GAMES_TO_SIMULATE
         self.total_score = 0
         self.total_games = 0
-        self.start_new_game()
+        self._start_new_game()
 
-    def start_new_game(self):
+    def _start_new_game(self):
         self.game_controller.reset()
-        self.play_single_move()
+        self._play_single_move()
 
-    def play_single_move(self):
+    def _play_single_move(self):
         game_ended = self.game_controller.play()
         self.update()
         self.set_history_index()
 
         if not game_ended:
             t = QtCore.QTimer()
-            t.singleShot(5, self.play_single_move)
+            t.singleShot(5, self._play_single_move)
         else:
             self.total_score += self.game_controller.state.score
             self.total_games += 1
@@ -116,7 +117,7 @@ class WindowGame(Window):
 
             if self.games > 0:
                 t = QtCore.QTimer()
-                t.singleShot(5, self.start_new_game)
+                t.singleShot(5, self._start_new_game)
             else:
                 average_score = self.total_score / self.total_games
                 print(f"Average Score over {self.total_games} games: {average_score}")

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Time an event.
+Use this to time an event according to a key, and measure unit performance.
 """
 
 import time
