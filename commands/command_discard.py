@@ -4,7 +4,7 @@
 <ENTER DESCRIPTION HERE>
 """
 
-from logic.command import Command
+from commands.command import Command
 from py_hanabi.settings import N_HINT_TOKENS_MAX
 from py_hanabi.state import State
 

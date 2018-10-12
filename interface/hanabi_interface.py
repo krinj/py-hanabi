@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 """
-<ENTER DESCRIPTION HERE>
+Initialize the Hanabi PyQT5 Interface.
 """
+
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtGui import QPalette
 from PyQt5.QtWidgets import QMainWindow, QDesktopWidget, QApplication
 
+from interface.hanabi_window import HanabiWindow
 from interface.window import Window
-from interface.window_game import WindowGame
-from logic.game_controller import GameController
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
@@ -40,7 +40,7 @@ class HanabiInterface(QMainWindow):
         super().__init__()
         self.setWindowTitle("Hanabi Visualizer")
         self.current_window: Window = None
-        self.window_game: WindowGame = WindowGame()
+        self.window_game: HanabiWindow = HanabiWindow()
         self.show_window(self.window_game)
 
         # Force a resize update.

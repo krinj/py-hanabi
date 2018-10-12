@@ -8,8 +8,8 @@ It allows the user to scrub back and forth between all actions.
 """
 
 from typing import List
-from logic.command import Command
-from logic.command_next_player import CommandNextPlayer
+from commands.command import Command
+from commands.command_next_player import CommandNextPlayer
 from py_hanabi.agent import Agent
 from py_hanabi.card import Card
 from py_hanabi.settings import N_HINT_TOKENS_MAX, N_FUSE_TOKENS_MAX, N_PLAYERS
@@ -19,7 +19,7 @@ __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
 
 
-class GameController:
+class Engine:
 
     def __init__(self):
 

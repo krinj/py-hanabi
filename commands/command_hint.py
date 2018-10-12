@@ -5,7 +5,7 @@
 """
 from typing import List
 
-from logic.command import Command
+from commands.command import Command
 from py_hanabi.card import Color, Card
 from py_hanabi.hint_stat import HintStat
 from py_hanabi.state import State

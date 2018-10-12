@@ -4,7 +4,7 @@
 <ENTER DESCRIPTION HERE>
 """
 
-from logic.command import Command
+from commands.command import Command
 from py_hanabi.state import State
 
 __author__ = "Jakrin Juangbhanich"

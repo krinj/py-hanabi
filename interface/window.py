@@ -5,7 +5,6 @@ This is the base class for rendering a sub-window within my app.
 """
 
 from abc import abstractmethod
-
 from PyQt5.QtGui import QResizeEvent
 from PyQt5.QtWidgets import QMainWindow, QVBoxLayout, QWidget
 

@@ -15,7 +15,7 @@ from interface.widget_game_control import WidgetGameControl
 from interface.widget_hand import WidgetHand
 from interface.widget_history import WidgetHistory
 from interface.window import Window
-from logic.game_controller import GameController
+from py_hanabi.engine import Engine
 from py_hanabi.settings import N_SIMULATIONS
 from py_hanabi.state import State
 
@@ -23,17 +23,22 @@ __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"
 
 
-class WindowGame(Window):
+class HanabiWindow(Window):
 
     def __init__(self):
         super().__init__()
 
-        self.game_controller: GameController = GameController()
+        self.engine: Engine = Engine()
         self.widget_history: WidgetHistory = WidgetHistory()
         self.widget_game_control: WidgetGameControl = WidgetGameControl()
         self.widget_board_info: WidgetBoardInfo = WidgetBoardInfo()
         self.action_label: QLabel = None
         self.hands: List[WidgetHand] = []
+
+        # Game Record.
+        self.games = N_SIMULATIONS
+        self.total_score = 0
+        self.total_games = 0
 
     def render(self, parent: QMainWindow):
         super().render(parent)
@@ -68,7 +73,7 @@ class WindowGame(Window):
 
         self.add_widget(main_widget)
         self.show_window(parent)
-        self.render_state(self.game_controller.state)
+        self.render_state(self.engine.state)
         self.update()
 
     def render_state(self, state: State):
@@ -81,15 +86,15 @@ class WindowGame(Window):
             h.resize()
 
     def update(self):
-        self.widget_history.update(self.game_controller.history)
+        self.widget_history.update(self.engine.history)
 
     def set_history_index(self, index: int=None):
         if index is None:
-            index = self.game_controller.latest_command_index
+            index = self.engine.latest_command_index
 
-        self.game_controller.set_command_index(index)
-        self.action_label.setText(self.game_controller.history[index].long_description)
-        self.render_state(self.game_controller.state)
+        self.engine.set_command_index(index)
+        self.action_label.setText(self.engine.history[index].long_description)
+        self.render_state(self.engine.state)
 
     def on_press_play(self):
         self.games = N_SIMULATIONS
@@ -98,11 +103,11 @@ class WindowGame(Window):
         self._start_new_game()
 
     def _start_new_game(self):
-        self.game_controller.reset()
+        self.engine.reset()
         self._play_single_move()
 
     def _play_single_move(self):
-        game_ended = self.game_controller.play()
+        game_ended = self.engine.play()
         self.update()
         self.set_history_index()
 
@@ -110,7 +115,8 @@ class WindowGame(Window):
             t = QtCore.QTimer()
             t.singleShot(5, self._play_single_move)
         else:
-            self.total_score += self.game_controller.state.score
+            # Add to the game record.
+            self.total_score += self.engine.state.score
             self.total_games += 1
             self.games -= 1
 
@@ -118,6 +124,7 @@ class WindowGame(Window):
                 t = QtCore.QTimer()
                 t.singleShot(5, self._start_new_game)
             else:
+                # Print the total score for the games played.
                 average_score = self.total_score / self.total_games
                 print(f"Average Score over {self.total_games} games: {average_score}")
 

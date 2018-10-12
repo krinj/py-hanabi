@@ -7,7 +7,7 @@ from typing import List, Callable
 
 from PyQt5.QtWidgets import QBoxLayout, QListWidget, QListWidgetItem, QLabel
 
-from logic.command import Command
+from commands.command import Command
 
 __author__ = "Jakrin Juangbhanich"
 __email__ = "juangbhanich.k@gmail.com"

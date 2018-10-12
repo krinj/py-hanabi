@@ -5,11 +5,11 @@ An agent to play the Hanabi game.
 """
 
 from typing import List
-from logic.command import Command
-from logic.command_discard import CommandDiscard
-from logic.command_draw import CommandDraw
-from logic.command_hint import CommandHint
-from logic.command_play import CommandPlay
+from commands.command import Command
+from commands.command_discard import CommandDiscard
+from commands.command_draw import CommandDraw
+from commands.command_hint import CommandHint
+from commands.command_play import CommandPlay
 from py_hanabi import analyzer
 from py_hanabi.analyzer import generate_observed_matrix
 from py_hanabi.card import Card
