@@ -17,6 +17,7 @@ class CommandNextPlayer(Command):
 
     def forward(self, state: State):
         state.player_index += 1
+        state.round_index += 1
         if state.player_index >= state.number_of_players:
             state.player_index = 0
 
@@ -27,6 +28,7 @@ class CommandNextPlayer(Command):
 
     def back(self, state: State):
         state.player_index -= 1
+        state.round_index -= 1
         if state.player_index < 0:
             state.player_index = state.number_of_players - 1
 

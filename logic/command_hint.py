@@ -3,9 +3,10 @@
 """
 <ENTER DESCRIPTION HERE>
 """
+from typing import List
 
 from logic.command import Command
-from py_hanabi.card import Color
+from py_hanabi.card import Color, Card
 from py_hanabi.hint_stat import HintStat
 from py_hanabi.state import State
 
@@ -38,6 +39,7 @@ class CommandHint(Command):
         state.hint_tokens -= 1
 
         hand = state.get_player_hand(self.target_index)
+        cards_hinted: List[Card] = []
 
         if self.number is not None:
             for card in hand:
@@ -54,6 +56,7 @@ class CommandHint(Command):
         state.hint_tokens += 1
 
         hand = state.get_player_hand(self.target_index)
+        cards_hinted: List[Card] = []
 
         if self.number is not None:
             for card in hand:

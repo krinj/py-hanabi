@@ -29,7 +29,10 @@ class Card:
         self._id: str = uuid.uuid4().hex
 
         self._hint_number_counter: int = 0
-        self._hint_number_color: int = 0
+        self._hint_color_counter: int = 0
+
+        self._index_hinted: List[int] = []
+        self._lone_hinted: List[bool] = []
 
         # According to hints, these are the ones we know it is NOT.
         self.not_color: List[Color] = []
@@ -55,7 +58,7 @@ class Card:
 
     def receive_hint_color(self, color: Color):
         if color == self.color:
-            self._hint_number_color += 1
+            self._hint_color_counter += 1
         else:
             self.not_color.append(color)
 
@@ -67,7 +70,7 @@ class Card:
 
     def remove_hint_color(self, color: Color):
         if color == self.color:
-            self._hint_number_color -= 1
+            self._hint_color_counter -= 1
         else:
             self.not_color.pop()
 
@@ -109,7 +112,7 @@ class Card:
 
     @property
     def hint_received_color(self) -> bool:
-        return self._hint_number_color > 0
+        return self._hint_color_counter > 0
 
     @staticmethod
     def generate_deck() -> List['Card']:

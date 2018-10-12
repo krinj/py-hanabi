@@ -39,10 +39,17 @@ Simulation result after 100 games: **15.71**
 | With vital reveal.                                           | 14.77  |
 | No discard_max rating.                                       | 15.40  |
 | total rating instead of max                                  | 15.58  |
+| discard policy only when 2 or more.                          | 15.87  |
+| prioritize hinting cards that can be played                  | 16.68  |
+| decreased 'play limit' parameter                             | 16.69  |
 
-Simulation result after 100 games: **???**
+Simulation result after 100 games: **16.68**
 
-### Version 4: Hint Boosting
+### Version 4: Hint Fixing
+
+For version 4 of the agent, we will make the assumption that the agent is playing with copies of itself. Here it can do logical deductions for things not possible if it were playing other agents.
+
+The key point I would like to create here, is that if an agent recieves a hint for a single card, and that card
 
 Simulation result after 100 games: **???**
 

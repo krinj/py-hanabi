@@ -32,6 +32,8 @@ class State:
         self.fuse_tokens = 0
         self.rounds_left = None
         self.grace_rounds: int = 0
+        self.round_index: int = 0
+        self.fireworks_played_index: List[int] = []
 
         # State Temporary Maps.
         self._playable_card_map: Dict[tuple, bool] = None
@@ -67,6 +69,8 @@ class State:
         self.grace_rounds = n_players + 1
 
         self.rounds_left = None
+        self.round_index = 0
+        self.fireworks_played_index = []
 
     @property
     def game_ended(self) -> bool:

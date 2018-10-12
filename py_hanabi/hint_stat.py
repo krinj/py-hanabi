@@ -17,3 +17,7 @@ class HintStat:
         self.max_play_gain: float = 0
         self.max_discard_gain: float = 0
         self.vital_reveal: int = 0
+
+        # If this hint points to a card that can immediately be played.
+        self.n_cards_affected: int = 0
+        self.true_playable_cards: int = 0

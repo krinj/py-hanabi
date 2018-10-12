@@ -26,6 +26,7 @@ class CommandPlay(Command):
         if self.is_playable:
             state.fireworks.append(card)
             state.set_dirty()
+            state.fireworks_played_index.append(state.round_index)
             self.long_description = f"Player {self.player_index + 1} Successfully Plays {card.label}."
             if card.number == 5:
                 state.hint_tokens += 1
@@ -38,6 +39,7 @@ class CommandPlay(Command):
         if self.is_playable:
             card = state.fireworks.pop()
             state.set_dirty()
+            state.fireworks_played_index.pop()
             if card.number == 5:
                 state.hint_tokens -= 1
         else:

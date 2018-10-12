@@ -79,6 +79,8 @@ class CardMatrix:
         # TODO: Turn this into a hash table for faster recall.
         self.stats: Dict[(Color, int), CardStat] = {}
         self.hand_index: int = hand_index
+        self.play_rating_factor: float = 1.0
+        self.discard_rating_factor: float = 1.0
 
     def add(self, stat: CardStat):
         self.stats[(stat.color, stat.number)] = stat
@@ -88,6 +90,11 @@ class CardMatrix:
         score = 0
         for _, stat in self.stats.items():
             score += stat.probability * stat.rating_play
+
+        if score < 1:
+            score *= self.play_rating_factor
+            score = min(0.99, score)
+
         return score
 
     @property
@@ -95,7 +102,12 @@ class CardMatrix:
         score = 0
         for _, stat in self.stats.items():
             score += stat.probability * stat.rating_discard
-        return score
+
+        if score < 1:
+            score *= self.discard_rating_factor
+            score = min(0.99, score)
+
+        return score * self.discard_rating_factor
 
     def __repr__(self):
         desc = ""

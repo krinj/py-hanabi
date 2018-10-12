@@ -6,7 +6,6 @@
 
 from typing import List, Dict
 from logic.command_hint import CommandHint
-from py_hanabi.action import ActionHint
 from py_hanabi.card import Color, Card
 from py_hanabi.card_matrix import CardMatrix, CardStat, CardCounter
 from py_hanabi.hint_stat import HintStat
@@ -166,11 +165,21 @@ def get_hint_rating(state: State, hint: CommandHint) -> HintStat:
 
         if hint.color is not None and hint.color == card.color:
             # print(f"Get Hint C {hint.color} - {card.color}")
+            if not card.hint_received_color:
+                hint_stat.n_cards_affected += 1
+                if state.is_card_playable(card):
+                    hint_stat.true_playable_cards += 1
+
             post_matrix = get_card_matrix(
                 state, hint.target_index, hint.color, card.observed_number, observed_matrix=observed_matrix)
 
         if hint.number is not None and hint.number == card.number:
             # print(f"Get Hint R {hint.number} - {card.number}")
+            if not card.hint_received_number:
+                hint_stat.n_cards_affected += 1
+                if state.is_card_playable(card):
+                    hint_stat.true_playable_cards += 1
+
             post_matrix = get_card_matrix(
                 state, hint.target_index, card.observed_color, hint.number, observed_matrix=observed_matrix)
 
