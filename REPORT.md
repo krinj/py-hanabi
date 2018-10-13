@@ -114,10 +114,10 @@ The matrix above will help the agent work out the probability of a certain move 
 The default parameters are:
 
 ```python
-K_NORMAL_PLAY_LIMIT = 0.85
+K_NORMAL_PLAY_LIMIT = 0.80
 K_SAFE_PLAY_LIMIT = 1.00
-K_DISCARD_LIMIT = 0.85
-K_HINT_PLAY_BOOST = 1.35
+K_DISCARD_LIMIT = 0.90
+K_HINT_PLAY_BOOST = 1.25
 ```
 
 #### Hint Policy
@@ -136,72 +136,99 @@ The hints will be played aggresively, prioritizing these factors:
 
 ## Implementation
 
+The Python simulator for Hanabi was implemented with PyQT5 as the sole dependency. It allows the user to scroll forwards and backwards through a game's actions and see the state at any given point. 
+
+![pyhanabi_gui](images/pyhanabi_gui.png)
+
+Clicking on a card will also allow the player to see the distribution matrix for that card (from the player's perspective). Green numbers indicate cards that can immediately be played. Red numbers indicate cards that can immediately be discarded.
+
+![card_value_matrix](images/card_value_matrix.png)
+
+To run this simultor, use a new Python 3.6 environment and install PyQT5.
+
+```bash
+pip install -r requirements.txt
+python ./cmd_hanabi_interface.py
+```
+
+#### Commands
+
+The simulator was implemented using a **Command Queue** design pattern. This means that the state is fluid, being updated on demand by a list of commands in sequence. Every action in the game must be extended from the Command superclass, and implements a `forward` and `backward` method. These methods must modify the game state respectively, and this is the mechanism that allows the user to both fast forward or rewing a state.
+
+For advanced simulations, we could theoretically load up a state up to a certain point, and 'replay' that move in many different ways in order to train or develop the agent.
+
+#### Matrix Design
+
+The matrix structure was implemented using a hash map data structure. The color and value of a card is combined to make a string key, and each element in table is a `CardStat`, which contains the probability and ratings of each card. The hash map is essential to letting this algorithm run quickly. This is because the agent must compute a new matrix for every permutation of other player's cards against every possible hint action (this is to determine the ideal hint to dispense). Calculating and caching some maps (cards that can be played, colors that are blocked from playing, cards that can be discarded) was crucial to enabling the agent to execute in real time on an Intel Core i7 3.0 Ghz processor.
+
+#### Java Implementation
+
+The entire Python agent was then ported into a single Java file. The different classes have been implemented as private classes in the package scope.
+
 
 
 ## Validation
 
+This are tables of the agent's results using the default configuration. In each testing sample, the games are played 500 times. I tested the agent in mirror match situations (the agent plays copies of itself) and in situations where it plays with the `BasicAgent ` provided by the project to test its robustness.
+
+### Mirror Matches
+
+#### Mirror Matches Without Hint Boosting
+
+| Number of Players | Score Average |
+| ----------------- | ------------- |
+| 2                 | 10.92         |
+| 3                 | **17.12**     |
+| 4                 | 16.94         |
+| 5                 | 16.11         |
+
+#### Mirror Matches With Hint Boosting
+
+| Number of Players | Score Average |
+| ----------------- | ------------- |
+| 2                 | 12.60         |
+| 3                 | **17.40**     |
+| 4                 | 17.23         |
+| 5                 | 16.32         |
+
+### Basic Agent Matches
+
+#### All Basic Agents
+
+| Number of Players | Score Average |
+| ----------------- | ------------- |
+| 2                 | 7.96          |
+| 3                 | 7.90          |
+| 4                 | 7.39          |
+| 5                 | 6.78          |
+
+#### Solo with Basic Agents Without Hint Boosting
+
+| Number of Players | Score Average |
+| ----------------- | ------------- |
+| 2                 | 11.71         |
+| 3                 | 11.62         |
+| 4                 | 10.02         |
+| 5                 | 8.90          |
+
+#### Solo with Basic Agents With Hint Boosting
+
+| Number of Players | Score Average |
+| ----------------- | ------------- |
+| 2                 | 11.35         |
+| 3                 | 11.75         |
+| 4                 | 9.97          |
+| 5                 | 8.63          |
+
+## 
+
+## Conclusion
+
+This is an agent that plays well and can execute its moves quickly. The greatest strength of this agent is that it computes a lot of high quality data about the state of the game, which can be then used as further input either with a simple rules based engine (as above), or as part of a more complex model agent architecture (such as a neural network).
+
+With an aggresive strategy and hint boosting, the agent is play quite well in mirror matches. With a more generic configuration, it can still reliably improve the average score in games with other basic agents.
+
 
 
 ## References
-
-
-
-### Version 1: Bayesian Agent
-
-* Agent creates a probability matrix for each card in their hand, based on all the information that they have.
-* Agent assigns a 'play rating' and a 'discard rating' to each card.
-* Each matrix then weighs this rating with the probability, resulting in an overall play or discard score for the card. A score of **1.0** means absolute certainty.
-* The agent then has a hard-coded policy to act based on this information. It will play or discard a card that it is at least 90% certain about. Otherwise, it will give a hint to another agent, based on what it percieves the biggest net gain will be. If no hint tokens remain, it will discard the card with the highest discard rating.
-
-Simulation result after 100 games: **15.75**
-
-### Version 2: Discard Model
-
-* Know when a full color suite is useless.
-
-Simulation result after 100 games: **15.12**
-
-### Version 3: Fuse Guard
-
-Simulation result after 100 games: **15.57**
-
-### Version 4: Hint Accounting
-
-Simulation result after 100 games: **15.71**
-
-### Version 5: Improved Hint Policy
-
-* Prioritize giving hint to 5's.
-* Prioritize cards that can be played.
-
-| Hint Policy                                                  | Result |
-| ------------------------------------------------------------ | ------ |
-| Play enabling, then highest play rating gain + 0.5 highest discard rating gain. | 16.05  |
-| Same as above, with discard enablers scored after play enablers. | 14.43  |
-| With vital reveal.                                           | 14.77  |
-| No discard_max rating.                                       | 15.40  |
-| total rating instead of max                                  | 15.58  |
-| discard policy only when 2 or more.                          | 15.87  |
-| prioritize hinting cards that can be played                  | 16.68  |
-| decreased 'play limit' parameter                             | 16.69  |
-| Agent increases probability of hinted cards (1.25 boost)     | 16.92  |
-| Same (1.50 boost)                                            | 17.05  |
-| Same (1.35 boost)                                            | 17.15  |
-| Aggressive 1.35 boost without discard policy.                | 17.48  |
-
-Simulation result after 100 games: **17.27**
-
-### Version 4: Hint Fixing
-
-For version 4 of the agent, we will make the assumption that the agent is playing with copies of itself. Here it can do logical deductions for things not possible if it were playing other agents.
-
-The key point I would like to create here, is that if an agent recieves a hint for a single card, and that card
-
-Simulation result after 100 games: **???**
-
-### Future Optimizations
-
-* Agent should take into account 'final round' actions. The current model still tries to give hints or discard on the last round. Instead, if there are fuse tokens remaining, it will be better off taking calculated risks.
-
-
 
