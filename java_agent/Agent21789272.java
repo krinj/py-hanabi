@@ -9,9 +9,9 @@ import java.util.*;
 public class Agent21789272 implements Agent {
 
     // Control Constants. This determines agent behaviour.
-    private static final float K_NORMAL_PLAY_LIMIT = 0.85f;
+    private static final float K_NORMAL_PLAY_LIMIT = 0.80f;
     private static final float K_SAFE_PLAY_LIMIT = 1.00f;
-    private static final float K_DISCARD_LIMIT = 0.85f;
+    private static final float K_DISCARD_LIMIT = 0.90f;
     private static final float K_HINT_PLAY_BOOST = 1.00f;
 
     public String toString(){
@@ -51,31 +51,32 @@ public class Agent21789272 implements Agent {
             // Give hint to another player.
             if (state.getHintTokens() > 0) {
                 List<PyHint> hints = getValidHintCommands(pyState, playerIndex);
-                PyHint hint = getBestHint(hints);
+                if (hints.size() > 0) {
+                    PyHint hint = getBestHint(hints);
 
-                // Generate the action for this hint.
-                Card[] targetHand = state.getHand(hint.targetIndex);
-                boolean[] hintCards = new boolean[targetHand.length];
-                for (int i = 0; i < targetHand.length; i++)
-                {
-                    Card card = targetHand[i];
-                    if (card == null)
-                        continue;
+                    // Generate the action for this hint.
+                    Card[] targetHand = state.getHand(hint.targetIndex);
+                    boolean[] hintCards = new boolean[targetHand.length];
+                    for (int i = 0; i < targetHand.length; i++) {
+                        Card card = targetHand[i];
+                        if (card == null)
+                            continue;
 
-                    hintCards[i] = false;
+                        hintCards[i] = false;
 
-                    if (hint.colour != null && hint.colour == card.getColour())
-                        hintCards[i] = true;
+                        if (hint.colour != null && hint.colour == card.getColour())
+                            hintCards[i] = true;
 
-                    if (hint.value > 0 && hint.value == card.getValue())
-                        hintCards[i] = true;
+                        if (hint.value > 0 && hint.value == card.getValue())
+                            hintCards[i] = true;
+                    }
+
+                    ActionType hintType = hint.colour == null ? ActionType.HINT_VALUE : ActionType.HINT_COLOUR;
+                    if (hint.colour == null)
+                        return new Action(playerIndex, toString(), hintType, hint.targetIndex, hintCards, hint.value);
+                    else
+                        return new Action(playerIndex, toString(), hintType, hint.targetIndex, hintCards, hint.colour);
                 }
-
-                ActionType hintType = hint.colour == null ? ActionType.HINT_VALUE : ActionType.HINT_COLOUR;
-                if (hint.colour == null)
-                    return new Action(playerIndex, toString(), hintType, hint.targetIndex, hintCards, hint.value);
-                else
-                    return new Action(playerIndex, toString(), hintType, hint.targetIndex, hintCards, hint.colour);
             }
 
             // Forced to discard.
@@ -115,7 +116,7 @@ public class Agent21789272 implements Agent {
             // Favour the hinted cards.
             if (card.hasReceivedValueHint() || card.hasReceivedColourHint())
             {
-                if (matrix.getPlayRating() > matrix.getDiscardRating())
+//                if (matrix.getPlayRating() > matrix.getDiscardRating())
                     matrix.playRatingFactor = K_HINT_PLAY_BOOST;
             }
 
@@ -323,6 +324,9 @@ public class Agent21789272 implements Agent {
 
     private PyHint getBestHint(List<PyHint> hints)
     {
+        if (hints.size() == 0)
+            return null;
+
         hints.sort(new PyHintComparator());
         return hints.get(hints.size() - 1);
     }
@@ -507,14 +511,14 @@ class PyState {
         if (value == 5)
             return 0.0f;
 
+        if (isCardPlayable(colour, value))
+            return 0.2f;
+
         if (playableNumberMap.containsKey(colour) && value < playableNumberMap.get(colour))
             return 1.0f;
 
         if (visibleMap.get(PyCardUtil.getKey(colour, value)) >= 2)
             return 0.5f;
-
-        if (isCardPlayable(colour, value))
-            return 0.0f;
 
         return 0.3f;
     }
@@ -846,7 +850,7 @@ class PyHint {
     float maxDiscardGain = 0.0f;
     int vitalReveal = 0;
 
-    private int distance;
+    int distance;
     private int truePlayableCards = 0;
 
     PyHint(int playerIndex, int targetIndex, Colour colour, int value, PyState state)
@@ -888,7 +892,7 @@ class PyHint {
 
     float getDiscardEnablingScore()
     {
-        return distance * (enablesDiscard > 1 ? 1f : 0);
+        return distance * (enablesDiscard > 0 ? 1f : 0);
     }
 
     float getMaxPlayGainScore()
@@ -906,6 +910,7 @@ class PyHint {
 
 class PyHintComparator implements Comparator<PyHint> {
     public int compare(PyHint o1, PyHint o2) {
+
         int rPlayEnabling = Float.compare(o1.getPlayEnablingScore(), o2.getPlayEnablingScore());
         if (rPlayEnabling != 0)
             return rPlayEnabling;
