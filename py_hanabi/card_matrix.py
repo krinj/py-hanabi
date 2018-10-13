@@ -106,7 +106,7 @@ class CardMatrix:
             score *= self.discard_rating_factor
             score = min(0.99, score)
 
-        return score * self.discard_rating_factor
+        return score
 
     def __repr__(self):
         desc = ""

@@ -31,8 +31,8 @@ class Card:
         self._hint_number_counter: int = 0
         self._hint_color_counter: int = 0
 
-        self._index_hinted: List[int] = []
-        self._lone_hinted: List[bool] = []
+        # self._index_hinted: List[int] = []
+        # self._lone_hinted: List[bool] = []
 
         # According to hints, these are the ones we know it is NOT.
         self.not_color: List[Color] = []
