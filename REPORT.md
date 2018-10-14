@@ -1,17 +1,18 @@
-# Hanabi AI Agent: Prince of Nigeria
+# Hanabi AI Agent
 
-###  CITS3001 Major Project Research Report by Jakrin Juangbhanich
+**CITS3001 Major Project Research Report** by Jakrin Juangbhanich
+2689 Words
 
 
 
 ## Contents
 
-1. Introduction
-2. Literature Review
-3. Selected Strategy
-4. Implementation
-5. Validation
-6. References
+1. [Introduction](#introduction)
+2. [Literature Review](#literature-review)
+3. [Selected Strategy](#selected-strategy)
+4. [Implementation](#implementation)
+5. [Validation](#validation)
+6. [References](#references)
 
 
 
@@ -19,7 +20,7 @@
 
 Hanabi is a co-operative card game for 2-5 players. There are 50 cards in the deck, with five suits (red, green, blue, white, yellow) and five values (from 1 to 5). The cards must be played in a certain sequence (ascending order by suit), and the goal of the game is to play as many cards as possible before it is over. The key mechanic of this game is that players cannot see their own hand, but can see the other players' hands. During their turn, they may chose to play a card, discard a card, or give another player some information. The official rules can be found here: [Hanabi Card Game Rules PDF](https://www.spillehulen.dk/media/102616/hanabi-card-game-rules.pdf). Also, a perfect solution to this game is [considered to be NP Complete](http://teaching.csse.uwa.edu.au/units/CITS3001/project/2018/papers/HanabiNP.pdf).
 
-The goal of this project is to build an AI agent to play the game, Hanabi. Current published strategies for playing the game fall largely into either Monte Carlo Tree search or some form of rules based system. I believe that there is a lot of information to be modelled during the game, so my approach was to augment a simple rules based agent with high quality information about the board state. In addition to this, I focused on building fast simulation and visualization pipelines so that I can gain deeper insight into how to improve an agent.
+The goal of this project is to build an AI agent to play the game, Hanabi. Current published strategies for playing the game fall largely into either Monte Carlo Tree search or some form of rules based system. I believe that there is a lot of information to be modeled during the game, so my approach was to augment a simple rules based agent with high quality information about the board state. In addition to this, I focused on building fast simulation and visualization pipelines so that I can gain deeper insight into how to improve an agent.
 
 I developed a Hanabi simulator and GUI in Python for rapid experimentation and testing, and finally ported the agent to Java once I was satisfied with the results. The agent computes a probability matrix for each card in hand, as well as a value matrix for each possible hint that it can give to other players. By using this information with a simple rules engine, this agent is able to achieve an average score of **17.03** when playing a 4-player game with itself (over a sample size of 500 games).
 
@@ -33,7 +34,7 @@ Osawa's paper presents several different agents, each one adding some incrementa
 
 This agent was simulation in a 2-player game, with *n-games* = 100. The average score was **15.85** using this "self recognition strategy." This is an impressive result, as I found that my agent struggles a lot more when there are fewer players.
 
-However, I do not believe this to be a good general strategy. A large part of this strategy aims to model the world state from the previous player's perspective. In a 2 player scenario, this is much easier to simulate because there is only one other player. Also, any hint received by the agent is guarenteed to come from the single other player. This strategy also assumes that the other player is using the exact same strategy to play; that is, it assumes that it is playing a mirror-image of itself.
+However, I do not believe this to be a good general strategy. A large part of this strategy aims to model the world state from the previous player's perspective. In a 2 player scenario, this is much easier to simulate because there is only one other player. Also, any hint received by the agent is guaranteed to come from the single other player. This strategy also assumes that the other player is using the exact same strategy to play; that is, it assumes that it is playing a mirror-image of itself.
 
 Whilst this may be specialized to deal with a mirror-match in a 2-player scenario, I do not think it will be robust to 3, 4 or 5 player games, and with different agents. Although the self-recognition agent was not tested in *Walton-River et al's paper (2017*), Osawa's outer-state agent demonstrated significantly lower scores when evaluated in a larger team game.
 
@@ -44,28 +45,28 @@ Van den Bergh's paper examines the playability and properties of Hanabi. It also
 1. Play a card if certain that is playable.
 2. Discard a card if certain that it can be discarded.
 3. If hint tokens remain, give the most useful hint to another player.
-4. Otherwise, discard the card most likley to be unplayable.
+4. Otherwise, discard the card most likely to be unplayable.
 
 Of course, there are many parameters and policies for each of these steps. The author also presents the case for special situations, such as when the game is ending and the agent is better off 'guessing' a card than giving a hint.
 
-Different strategies were simulated in a 3-player mirror match, with *n-games*=10. The simulation also tests 10,000 different paramter configurations with each strategy. The strongest combination with the following rules:
+Different strategies were simulated in a 3-player mirror match, with *n-games*=10. The simulation also tests 10,000 different parameter configurations with each strategy. The strongest combination with the following rules:
 
 * Discard Rule: discard the card that seems most useless.
 * Hint Rule: Giving a hint on the next useful card in sight or on the largest number of card.
 
 The score of this agent is **15.4**.
 
-Van den Bergh also explores the idea of using Monte-Carlo Tree Search. But the results seem poor, with high simluation costs only achieving an average score of **14.5**. The author cites that MCTS can be awkward to apply to Hanabi because of the nature of hidden information in the game, and the limited fuses for each player to make a mistake.
+Van den Bergh also explores the idea of using Monte-Carlo Tree Search. But the results seem poor, with high simulation costs only achieving an average score of **14.5**. The author cites that MCTS can be awkward to apply to Hanabi because of the nature of hidden information in the game, and the limited fuses for each player to make a mistake.
 
 #### Evaluating Hanabi Agents: 2017
 
-Watlon-River's paper *Evaluating and Modelling Hanabi Playing Agents* discusses the above two agents, as well as some other ones (most notably the Predictor IS-MCTS model). The simluations included mirror-match benchmarks, as well as 2, 3, 4 and 5 player games using a different combination of agents. The authors also included intentionally flawed agents to evaluate how other agents would perform when playing with a non-optimal team-mate.
+Watlon-River's paper *Evaluating and Modeling Hanabi Playing Agents* discusses the above two agents, as well as some other ones (most notably the Predictor IS-MCTS model). The simulations included mirror-match benchmarks, as well as 2, 3, 4 and 5 player games using a different combination of agents. The authors also included intentionally flawed agents to evaluate how other agents would perform when playing with a non-optimal team-mate.
 
-The authors point out that MCTS has the desirable property of being to operate without domain specific knowledge. The most performant agent in this paper was the Predictor IS-MCTS model. However, the downside of this agent is that it must be provided with a model for each of the other agents that it is playing with. Also, it is quite slow - the authors had to limit its time per move to 1 second (whereas a rules based agent could complete an entire game in that same time).
+The authors point out that MCTS has the desirable property of being to operate without domain specific knowledge. The best performing agent in this paper was the Predictor IS-MCTS model. However, the downside of this agent is that it must be provided with a model for each of the other agents that it is playing with. Also, it is quite slow - the authors had to limit its time per move to 1 second (whereas a rules based agent could complete an entire game in that same time).
 
 What was most notable for me in this paper was the care that the authors had taken to create perfect simulation environments. All the non-determinism was seeded to ensure that each agent was evaluated under the same conditions. Large n-game sizes were used, and the tests covered many different possible combination of agent pairings.
 
-Because the simluation method was different, I am unable to use the leading score (**12.14** in a 3-player game with the IS-MCTS agent) in any meaningful way (since I only have the capacity to test mirror match set ups).
+Because the simulation method was different, I am unable to use the leading score (**12.14** in a 3-player game with the IS-MCTS agent) in any meaningful way (since I only have the capacity to test mirror match set ups).
 
 
 
@@ -77,7 +78,7 @@ Here is an outline of my development strategy:
 
 * **Implement a Hanabi CQRS and GUI for analysis**: In order to design and improve the strategy, the first step was to make powerful tools that allowed me to look at each game in great detail. Firstly I created a GUI for the game state, allowing me to interact with the cards and see their data visually. I used a CQRS (command queue) design pattern to simulate the game, meaning that I could click through a history of all the moves, to see the state before and after each move.
 * **Apply Bayesian Reasoning**: For each card in hand, the agent computes a probability score (for each possible color and value combination), and a rating (for whether it should be played or discarded). This will allow the agent to make better decisions.
-* **Analyse and Experiment**: Once I have a basic agent running with the above information, I can analyse the games played and develop some intuition about ways to improve the agent.
+* **Analyze and Experiment**: Once I have a basic agent running with the above information, I can analyze the games played and develop some intuition about ways to improve the agent.
 
 The agent itself is very simple. It has two main components:
 
@@ -98,7 +99,7 @@ The matrix will be produced with the following procedure, for each unknown card 
 * First, a duplicate of the initial deck is used as the starting pool.
 * All cards from the discard pile, fireworks pile, and observed in all other players' hands are removed from this pool.
 * The pool is further updated according to the hints received by this card.
-* Finally, the card will also have a history of hints that it was present for, but not targeted for. This means that it can also elimate a lot of options from the pool.
+* Finally, the card will also have a history of hints that it was present for, but not targeted for. This means that it can also eliminate a lot of options from the pool.
 * Now we have a matrix of all possible cards that this unknown card could be.
 
 #### Gameplay Policy
@@ -109,7 +110,7 @@ The matrix above will help the agent work out the probability of a certain move 
 2. **(Bonus Step: Hint Boosting)** If no cards were played initially, then look at the cards again. Any cards that have received a hint will have their ratings boosted to a factor of `K_HINT_PLAY_BOOST`. We then see if any cards can be played with the ratings boost. This is done assume that other agents will favor hinting towards immediately playable cards. However, if the other agents are unknown, it may be best to disable this feature by setting the co-efficient to `1.0`.
 3. If there is a card with a discard rating >= ` K_DISCARD_LIMIT` then discard the card.
 4. If hint tokens remain, then give a hint to another player according to the agent's **hint policy**.
-5. Otherwise, desparate times calls for desparate measures... discard the card with the highest discard rating.
+5. Otherwise, desperate times calls for desperate measures... discard the card with the highest discard rating.
 
 The default parameters are:
 
@@ -124,12 +125,12 @@ K_HINT_PLAY_BOOST = 1.25
 
 The agent will also compute a matrix, this time from its target's point of view, to decide how best to reward its next hint.
 
-The hints will be played aggresively, prioritizing these factors:
+The hints will be played aggressively, prioritizing these factors:
 
 * Whether or not this hint can immediately enable the target player to play a new card with 100% confidence.
 * Whether or not this is a card that can be played (even if the hint doesn't give the player full information).
 * Whether or not this will allow the player to discard this card with 100% confidence.
-* Otherwise, maximise the `play_rating` gain from giving this hint to another player.
+* Otherwise, maximize the `play_rating` gain from giving this hint to another player.
 * All other things equal, players closer to the current player will be prioritized.
 
 
@@ -144,7 +145,7 @@ Clicking on a card will also allow the player to see the distribution matrix for
 
 ![card_value_matrix](images/card_value_matrix.png)
 
-To run this simultor, use a new Python 3.6 environment and install PyQT5.
+To run this simulator, use a new Python 3.6 environment and install PyQT5.
 
 ```bash
 pip install -r requirements.txt
@@ -153,7 +154,7 @@ python ./cmd_hanabi_interface.py
 
 #### Commands
 
-The simulator was implemented using a **Command Queue** design pattern. This means that the state is fluid, being updated on demand by a list of commands in sequence. Every action in the game must be extended from the Command superclass, and implements a `forward` and `backward` method. These methods must modify the game state respectively, and this is the mechanism that allows the user to both fast forward or rewing a state.
+The simulator was implemented using a **Command Queue** design pattern. This means that the state is fluid, being updated on demand by a list of commands in sequence. Every action in the game must be extended from the Command superclass, and implements a `forward` and `backward` method. These methods must modify the game state respectively, and this is the mechanism that allows the user to both fast forward or rewinding a state.
 
 For advanced simulations, we could theoretically load up a state up to a certain point, and 'replay' that move in many different ways in order to train or develop the agent.
 
@@ -171,9 +172,9 @@ The entire Python agent was then ported into a single Java file. The different c
 
 This are tables of the agent's results using the default configuration. In each testing sample, the games are played 500 times. I tested the agent in mirror match situations (the agent plays copies of itself) and in situations where it plays with the `BasicAgent ` provided by the project to test its robustness.
 
-### Mirror Matches
 
-#### Mirror Matches Without Hint Boosting
+
+##### Matrix Agent plays against copies of itself, without hint boosting.
 
 | Number of Players | Score Average |
 | ----------------- | ------------- |
@@ -182,7 +183,9 @@ This are tables of the agent's results using the default configuration. In each 
 | 4                 | 16.94         |
 | 5                 | 16.11         |
 
-#### Mirror Matches With Hint Boosting
+
+
+##### Matrix Agent plays against copies of itself, without hint boosting:
 
 | Number of Players | Score Average |
 | ----------------- | ------------- |
@@ -191,44 +194,53 @@ This are tables of the agent's results using the default configuration. In each 
 | 4                 | 17.23         |
 | 5                 | 16.32         |
 
-### Basic Agent Matches
 
-#### All Basic Agents
+
+##### Basic Agents plays against copies of itself:
 
 | Number of Players | Score Average |
 | ----------------- | ------------- |
-| 2                 | 7.96          |
+| 2                 | **7.96**      |
 | 3                 | 7.90          |
 | 4                 | 7.39          |
 | 5                 | 6.78          |
 
-#### Solo with Basic Agents Without Hint Boosting
+
+
+##### Solo Matrix Agent plays with Basic Agents, without hint boosting:
 
 | Number of Players | Score Average |
 | ----------------- | ------------- |
-| 2                 | 11.71         |
+| 2                 | **11.71**     |
 | 3                 | 11.62         |
 | 4                 | 10.02         |
 | 5                 | 8.90          |
 
-#### Solo with Basic Agents With Hint Boosting
+
+
+##### Solo Matrix Agent plays with Basic Agents, with hint boosting:
 
 | Number of Players | Score Average |
 | ----------------- | ------------- |
 | 2                 | 11.35         |
-| 3                 | 11.75         |
+| 3                 | **11.75**     |
 | 4                 | 9.97          |
 | 5                 | 8.63          |
 
-## 
 
-## Conclusion
+
+##Conclusion
 
 This is an agent that plays well and can execute its moves quickly. The greatest strength of this agent is that it computes a lot of high quality data about the state of the game, which can be then used as further input either with a simple rules based engine (as above), or as part of a more complex model agent architecture (such as a neural network).
 
-With an aggresive strategy and hint boosting, the agent is play quite well in mirror matches. With a more generic configuration, it can still reliably improve the average score in games with other basic agents.
+With an aggressive strategy and hint boosting, the agent is play quite well in mirror matches. With a more generic configuration, it can still reliably improve the average score in games with other basic agents.
 
 
 
 ## References
 
+Osawa, H, 2015. Solving Hanabi: Estimating Hands by Opponent's Actions in Cooperative Game with Incomplete Information. *University of Tsukuba*.
+
+Van Den Bergh, M, 2015. Aspects of the Cooperative Card Game Hanabi. *Leiden Institute of Advanced Computer Science*.
+
+Walton-Rivers, J, 2017. Evaluating and Modelling Hanabi-Playing Agents. *School of Computer Science and Electronic Engineering, University of Essex*.
