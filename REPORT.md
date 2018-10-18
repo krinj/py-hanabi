@@ -1,7 +1,7 @@
 # Hanabi AI Agent
 
 **CITS3001 Major Project Research Report** by Jakrin Juangbhanich
-2689 Words
+2998 Words
 
 
 
@@ -72,12 +72,15 @@ Because the simulation method was different, I am unable to use the leading scor
 
 ## Selected Strategy
 
-For my agent, I have used a rules-based strategy (Van den Bergh) as my starting point. I wanted to use as much common sense and intuition in developing this agent as I can, and I believe that the best place to start is to produce as much useful data as possible. No matter if the agent's main mechanism is hard coded rules, or a neural network, I think that the more data it has available, the better it will perform.
+For my agent, I have used a rules-based strategy (Van den Bergh) as my starting point. I have chosen this because the performance metrics look good, and it does not make as many assumptions as the other agents I have looked at in order to play well.
+
+I wanted to use as much common sense and intuition in developing this agent as I can, and I believe that the best place to start is to produce as much useful data as possible. No matter if the agent's main mechanism is hard coded rules, or a neural network, I think that the more data it has available, the better it will perform. My plan in this project was to implement a similar agent to Van den Bergh's, and augment it with a better model for understanding the board state. 
 
 Here is an outline of my development strategy:
 
 * **Implement a Hanabi CQRS and GUI for analysis**: In order to design and improve the strategy, the first step was to make powerful tools that allowed me to look at each game in great detail. Firstly I created a GUI for the game state, allowing me to interact with the cards and see their data visually. I used a CQRS (command queue) design pattern to simulate the game, meaning that I could click through a history of all the moves, to see the state before and after each move.
-* **Apply Bayesian Reasoning**: For each card in hand, the agent computes a probability score (for each possible color and value combination), and a rating (for whether it should be played or discarded). This will allow the agent to make better decisions.
+* **Apply Bayesian Reasoning**: For each card in hand, the agent computes a probability score (for each possible color and value combination), and a rating (for whether it should be played or discarded). It can also do this on behalf of other agents, to understand where a hint is best used. This will allow the agent to make better decisions.
+* **Improved Hint Policy:** Probably the most crucial aspect of this agent is how it decides to give out hints. The agent will use the Bayesian reasoning above, but from other agent's point of view, to determine the hint with the best overall value for the game.
 * **Analyze and Experiment**: Once I have a basic agent running with the above information, I can analyze the games played and develop some intuition about ways to improve the agent.
 
 The agent itself is very simple. It has two main components:
@@ -94,13 +97,16 @@ The agent's main function is to compute a probability matrix for an unknown card
 
 The matrix will be 5 x 5. Finally, it can compute a heuristic value for how playable or how discardable an unknown card is, by summing the product of each element's probability with its ratings.
 
-The matrix will be produced with the following procedure, for each unknown card in the player's hand:
+The matrix will be produced with the following procedure, for each unknown card *C* in the player's hand:
 
-* First, a duplicate of the initial deck is used as the starting pool.
-* All cards from the discard pile, fireworks pile, and observed in all other players' hands are removed from this pool.
-* The pool is further updated according to the hints received by this card.
-* Finally, the card will also have a history of hints that it was present for, but not targeted for. This means that it can also eliminate a lot of options from the pool.
-* Now we have a matrix of all possible cards that this unknown card could be.
+* First, a duplicate of the initial deck is used as the starting pool, *P*.
+* All cards from the discard pile, fireworks pile, and observed in all other players' hands are removed from *P*.
+* If this card (*C*) has received a hint, then remove all cards from *P* that do not share the same color/number as the hint received.
+* If *C* was in the player's hand during a hint, but did not actually receive the hint, then remove that hint's color and number from *P*.
+* Finally, iterate through each color-value combination (c, v). The probability of any particular color combination is **the count of (c, v) still in *P*, divided by the total number of cards still in *P*.**
+* Now, for card *C* we have a probability matrix for each possible color-value combination.
+* For each color-value combination, we can also calculate the play rating. If the card can immediately be played (according to the fireworks state), give it a score of `1.0`. If it cannot be played, the score is `0.0`.
+* The total *play rating* of *C* is then the sum of **playRating(c, v) * probability(c, v)** for each (c, v) combination.
 
 #### Gameplay Policy
 
@@ -160,7 +166,7 @@ For advanced simulations, we could theoretically load up a state up to a certain
 
 #### Matrix Design
 
-The matrix structure was implemented using a hash map data structure. The color and value of a card is combined to make a string key, and each element in table is a `CardStat`, which contains the probability and ratings of each card. The hash map is essential to letting this algorithm run quickly. This is because the agent must compute a new matrix for every permutation of other player's cards against every possible hint action (this is to determine the ideal hint to dispense). Calculating and caching some maps (cards that can be played, colors that are blocked from playing, cards that can be discarded) was crucial to enabling the agent to execute in real time on an Intel Core i7 3.0 Ghz processor.
+The matrix structure was implemented using a hash map data structure. The color and value of a card is combined to make a string key, and each element in table is a `CardStat`, which contains the probability and ratings of each card. The hash map is essential to the speed of this algorithm. This is because the agent must compute a new matrix for every permutation of other player's cards against every possible hint action (this is to determine the ideal hint to dispense). Calculating and caching some maps (cards that can be played, colors that are blocked from playing, cards that can be discarded) was crucial to enabling the agent to execute in real time on an Intel Core i7 3.0 Ghz processor.
 
 #### Java Implementation
 
@@ -185,7 +191,9 @@ This are tables of the agent's results using the default configuration. In each 
 
 
 
-##### Matrix Agent plays against copies of itself, without hint boosting:
+##### Matrix Agent plays against copies of itself, with hint boosting:
+
+'Hint boosting' is where an agent will assign a greater 'play' rating to cards that have been received a hint, unless that card has a strong probability to be discarded. It assumes that other agents will prioritize giving hints to actually playable cards.
 
 | Number of Players | Score Average |
 | ----------------- | ------------- |
@@ -219,6 +227,8 @@ This are tables of the agent's results using the default configuration. In each 
 
 
 ##### Solo Matrix Agent plays with Basic Agents, with hint boosting:
+
+In most cases, this agent actually performs worse. As expected, a tactic like 'hint boosting' only works if the agents can make assumptions about the other agents that it plays with.
 
 | Number of Players | Score Average |
 | ----------------- | ------------- |
