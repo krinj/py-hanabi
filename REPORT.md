@@ -239,7 +239,7 @@ In most cases, this agent actually performs worse. As expected, a tactic like 'h
 
 
 
-##Conclusion
+## Conclusion
 
 This is an agent that plays well and can execute its moves quickly. The greatest strength of this agent is that it computes a lot of high quality data about the state of the game, which can be then used as further input either with a simple rules based engine (as above), or as part of a more complex model agent architecture (such as a neural network).
 
